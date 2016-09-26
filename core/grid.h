@@ -3,6 +3,8 @@
 #include "common.h"
 #include "cell.h"
 #include <functional>
+#include <string>
+
 class Grid
 {
 public:
@@ -16,6 +18,7 @@ public:
     int indexVector(const int index, int &i, int &j, int &k) { i = index/(m_ny*m_nz); j = (index / m_nz) % m_ny; k = index % m_nz; }
     void iterate(std::function<void(Cell &cell)> action);
     void iterate(std::function<void(Cell &cell, int i, int j, int k)> action);
+    void writeVTK(std::string filename, int propertyIndex);
 private:
     std::vector<Cell> m_cells;
     int m_nx;

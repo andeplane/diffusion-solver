@@ -3,7 +3,7 @@
 #include "../grid.h"
 
 using namespace std;
-ForwardEuler::ForwardEuler(Grid *previous, Grid *current) : Integrator(),
+ForwardEuler::ForwardEuler(shared_ptr<class Grid> previous, shared_ptr<class Grid> current) : Integrator(),
     m_previous(previous), m_current(current)
 {
 
