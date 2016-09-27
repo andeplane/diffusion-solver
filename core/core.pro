@@ -10,7 +10,8 @@ SOURCES += main.cpp \
     integrators/integrator.cpp \
     integrators/forwardeuler.cpp \
     modifiers/modifier.cpp \
-    system.cpp
+    system.cpp \
+    modifiers/fixedboundaryvalue.cpp
 
 HEADERS += \
     cell.h \
@@ -21,4 +22,5 @@ HEADERS += \
     integrators/forwardeuler.h \
     modifiers/modifier.h \
     modifiers/modifiers.h \
-    system.h
+    system.h \
+    modifiers/fixedboundaryvalue.h

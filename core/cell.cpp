@@ -17,3 +17,8 @@ void Cell::setType(int type)
 {
     m_type = type;
 }
+
+void Cell::setPoreSize(int poreSize)
+{
+    m_poreSize = poreSize;
+}

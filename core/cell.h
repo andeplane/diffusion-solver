@@ -12,9 +12,12 @@ public:
     real &operator[](int index) { return m_contents[index]; }
     int type() const { return m_type; }
     void setType(int type);
+    int poreSize() const { return m_poreSize; }
+    void setPoreSize(int poreSize);
 
 private:
     int m_type;
+    int m_poreSize;
     std::vector<real> m_contents;
 };
 

@@ -1,39 +1,40 @@
 #include "forwardeuler.h"
-#include <iostream>
 #include "../grid.h"
-
+#include <iostream>
+#include <cmath>
 using namespace std;
-ForwardEuler::ForwardEuler(shared_ptr<class Grid> previous, shared_ptr<class Grid> current) : Integrator(),
-    m_previous(previous), m_current(current)
+ForwardEuler::ForwardEuler(shared_ptr<class Grid> previous, shared_ptr<class Grid> current, real dr) : Integrator(),
+    m_previous(previous), m_current(current), m_dr(dr)
 {
 
 }
 
 
-double K(int poreSize) {
-    const double Ka = 0.1586;
-    const double Kb = -0.2389;
-    const double Kc = -0.04202;
+real K(int poreSize) {
+    const real Ka = 0.1586;
+    const real Kb = -0.2389;
+    const real Kc = -0.04202;
     return Ka*pow(poreSize,Kb)+Kc;
 }
 
-double DSelf(int poreSize) {
-    double D1 = 0.000000000007016;
-    double D2 = 0.000000001542;
-    double D3 = -0.000000003727;
-    double D4 = 0.0000000303;
-    return (D1*(poreSize)*(poreSize)*(poreSize)+D2*(poreSize)*(poreSize)+D3*(poreSize)+D4); //[m2/s]
+real DSelf(int poreSize) {
+    real D1 = 0.000000000007016;
+    real D2 = 0.000000001542;
+    real D3 = -0.000000003727;
+    real D4 = 0.0000000303;
+    //return (D1*(poreSize)*(poreSize)*(poreSize)+D2*(poreSize)*(poreSize)+D3*(poreSize)+D4); //[m2/s]
+    return (D1*(poreSize)*(poreSize)*(poreSize)+D2*(poreSize)*(poreSize)+D3*(poreSize)+D4)*1000; //[µ2/ns]
 }
 
-double fugacity(double concentration, int poreSize) {
+real fugacity(real concentration, int poreSize) {
     return concentration/K(poreSize);
 }
 
-double concentration(double fugacity, int poreSize) {
+real concentration(real fugacity, int poreSize) {
     return fugacity*K(poreSize);
 }
 
-void ForwardEuler::tick(double dt)
+void ForwardEuler::tick(real dt)
 {
     if(!m_previous || !m_current) {
         cerr << "Error, ForwardEuler doesn't have initial grids set up." << endl;
@@ -41,7 +42,6 @@ void ForwardEuler::tick(double dt)
     }
 
     int CONCENTRATION = 0;
-    int PORESIZE = 0;
 
     Grid &current = *m_current;
     Grid &previous = *m_previous;
@@ -55,27 +55,35 @@ void ForwardEuler::tick(double dt)
                     int dk = a==2 ? 1 : 0;
                     Cell &cellA = previous(i,j,k);
                     Cell &cellB = previous[ previous.indexPeriodic(i+di,j+dj,k+dk) ];
-                    int poreSizeA = cellA[PORESIZE];
-                    int poreSizeB = cellB[PORESIZE];
 
-                    double concentrationA = cellA[CONCENTRATION];
-                    double concentrationB = cellB[CONCENTRATION];
-                    double fugacityA = fugacity(concentrationA, poreSizeA);
-                    double fugacityB = fugacity(concentrationB, poreSizeB);
+                    real concentrationA = cellA[CONCENTRATION];
+                    real concentrationB = cellB[CONCENTRATION];
+                    real fugacityA = fugacity(concentrationA, cellA.poreSize());
+                    real fugacityB = fugacity(concentrationB, cellB.poreSize());
+                    real deltaFugacity = fugacityA - fugacityB;
+                    real flowDirection = fugacityB>fugacityA ? 1 : -1; // +1 if flow goes from cell2 to cell1, -1 otherwise
 
-                    double flowDirection = fugacityB>fugacityA ? 1 : -1; // +1 if flow goes from cell2 to cell1, -1 otherwise
+                    real DA = DSelf(cellA.poreSize());
+                    real DB = DSelf(cellB.poreSize());
 
-                    double DA = DSelf(poreSizeA);
-                    double DB = DSelf(poreSizeB);
+                    real DAB= 2.0*DA*DB/(DA+DB); //L-cell size
+                    real JAB=DAB*deltaFugacity/m_dr; //flux btw 2 sites
+                    real DC=dt*JAB/m_dr;
 
-                    double DAB= 2*DA*DB/(DA+DB); //L-cell size
-                    double JAB=DAB*df/L; //flux btw 2 sites
-                    double DC=dt*JAB/L;
-
-                    current(current.index(i,j,k)) += DC*flowDirection;
+                    current(i,j,k)[CONCENTRATION] += DC*flowDirection;
 
                 }
             }
         }
     }
+}
+
+real ForwardEuler::dr() const
+{
+    return m_dr;
+}
+
+void ForwardEuler::setDr(real dr)
+{
+    m_dr = dr;
 }

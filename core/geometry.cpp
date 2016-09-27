@@ -30,7 +30,7 @@ namespace Geometry {
     Grid boxGrid(int nx, int ny, int nz, int numProperties)
     {
         Grid grid(nx, ny, nz, numProperties);
-        grid.iterate([&](Cell &cell, int i, int j, int) {
+        grid.iterate([&](Cell &cell, int i, int j, int k) {
             if(i==0 || j == 0 || k == 0) {
                 cell.setType(1);
             } else {
