@@ -5,5 +5,9 @@
 #include <memory>
 
 typedef double real;
+enum Diffusion {
+    CONCENTRATION = 0,
+    FUGACITY = 1
+};
 
 #endif // COMMON_H

@@ -26,4 +26,19 @@ namespace Geometry {
 
         return grid;
     }
+
+    Grid boxGrid(int nx, int ny, int nz, int numProperties)
+    {
+        Grid grid(nx, ny, nz, numProperties);
+        grid.iterate([&](Cell &cell, int i, int j, int) {
+            if(i==0 || j == 0 || k == 0) {
+                cell.setType(1);
+            } else {
+                cell.setType(0);
+            }
+        });
+
+        return grid;
+    }
+
 }

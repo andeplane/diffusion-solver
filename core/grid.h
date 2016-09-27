@@ -19,6 +19,8 @@ public:
     void iterate(std::function<void(Cell &cell)> action);
     void iterate(std::function<void(Cell &cell, int i, int j, int k)> action);
     void writeVTK(std::string filename, int propertyIndex);
+    Cell &operator()(const int i, const int j, const int k) { return m_cells[index(i,j,k)]; }
+    Cell &operator[](const int index) { return m_cells[index]; }
 private:
     std::vector<Cell> m_cells;
     int m_nx;
