@@ -5,7 +5,7 @@ using namespace std;
 
 Grid::Grid(int nx, int ny, int nz, int numProperties) :
     m_cells(nx*ny*nz, Cell(numProperties)),
-    m_nx(nx), m_ny(ny), m_nz(nz)
+    m_nx(nx), m_ny(ny), m_nz(nz), m_numProperties(numProperties)
 {
 
 }
@@ -74,4 +74,9 @@ void Grid::writeVTK(string filename, int propertyIndex)
     }
 
     file.close();
+}
+
+int Grid::numProperties() const
+{
+    return m_numProperties;
 }

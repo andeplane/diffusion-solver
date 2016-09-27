@@ -7,16 +7,13 @@
 class ForwardEuler : public Integrator
 {
 public:
-    ForwardEuler(std::shared_ptr<class Grid> previous, std::shared_ptr<class Grid>current, real dr);
+    ForwardEuler();
 
     // Integrator interface
-    virtual void tick(real dt) override;
+    virtual void tick(std::shared_ptr<class System> systemPtr, real dt) override;
     real dr() const;
-    void setDr(real dr);
-
+    void initialize(real dr);
 private:
-    std::shared_ptr<class Grid> m_previous;
-    std::shared_ptr<class Grid> m_current;
     real m_dr;
 };
 

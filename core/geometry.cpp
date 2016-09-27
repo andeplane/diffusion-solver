@@ -1,4 +1,6 @@
 #include "geometry.h"
+#include <iostream>
+using namespace std;
 
 namespace Geometry {
     Grid voidGrid(int nx, int ny, int nz, int numProperties)
@@ -36,6 +38,18 @@ namespace Geometry {
             } else {
                 cell.setType(0);
             }
+        });
+
+        return grid;
+    }
+
+    Grid linearGridX(int nx, int ny, int nz, int numProperties, real value1, real value2) {
+        Grid grid(nx, ny, nz, numProperties);
+        grid.iterate([&](Cell &cell, int i, int , int ) {
+            cell.setType(0);
+            real factor = float(i) / (grid.nx()-1);
+            real value = factor * value2 + (1 - factor) * value1;
+            cell[CONCENTRATION] = value;
         });
 
         return grid;

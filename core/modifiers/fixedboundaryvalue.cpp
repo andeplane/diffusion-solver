@@ -10,7 +10,9 @@ FixedBoundaryValue::FixedBoundaryValue(int dimension, real value1, real value2) 
 void FixedBoundaryValue::apply(std::shared_ptr<Grid> gridPtr)
 {
     Grid &grid = *gridPtr;
-    int N1 = m_dimension==0 ? grid.ny() : (m_dimension==1 ? grid.nx() : grid.nx()); // if boundary fix is in x, use YZ, if y, use XZ, if z, use XY
+
+    // If boundary fix is in x, use YZ, if y, use XZ, if z, use XY
+    int N1 = m_dimension==0 ? grid.ny() : (m_dimension==1 ? grid.nx() : grid.nx());
     int N2 = m_dimension==0 ? grid.nz() : (m_dimension==1 ? grid.nz() : grid.ny());
     for(int i=0; i<N1; i++) {
         for(int j=0; j<N2; j++) {

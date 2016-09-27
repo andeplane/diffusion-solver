@@ -1,10 +1,12 @@
 #include "forwardeuler.h"
 #include "../grid.h"
+#include "../system.h"
+
 #include <iostream>
 #include <cmath>
 using namespace std;
-ForwardEuler::ForwardEuler(shared_ptr<class Grid> previous, shared_ptr<class Grid> current, real dr) : Integrator(),
-    m_previous(previous), m_current(current), m_dr(dr)
+ForwardEuler::ForwardEuler() : Integrator(),
+    m_dr(-1)
 {
 
 }
@@ -34,17 +36,12 @@ real concentration(real fugacity, int poreSize) {
     return fugacity*K(poreSize);
 }
 
-void ForwardEuler::tick(real dt)
+void ForwardEuler::tick(std::shared_ptr<System> systemPtr, real dt)
 {
-    if(!m_previous || !m_current) {
-        cerr << "Error, ForwardEuler doesn't have initial grids set up." << endl;
-        terminate();
-    }
+    System &system = *systemPtr;
+    Grid &current = *system.grid();
+    Grid next = current;
 
-    int CONCENTRATION = 0;
-
-    Grid &current = *m_current;
-    Grid &previous = *m_previous;
     for(int i=0; i<current.nx(); i++) {
         for(int j=0; j<current.ny(); j++) {
             for(int k=0; k<current.nz(); k++) {
@@ -53,8 +50,8 @@ void ForwardEuler::tick(real dt)
                     int di = a==0 ? 1 : 0;
                     int dj = a==1 ? 1 : 0;
                     int dk = a==2 ? 1 : 0;
-                    Cell &cellA = previous(i,j,k);
-                    Cell &cellB = previous[ previous.indexPeriodic(i+di,j+dj,k+dk) ];
+                    Cell &cellA = current(i,j,k);
+                    Cell &cellB = current[ current.indexPeriodic(i+di,j+dj,k+dk) ];
 
                     real concentrationA = cellA[CONCENTRATION];
                     real concentrationB = cellB[CONCENTRATION];
@@ -70,12 +67,13 @@ void ForwardEuler::tick(real dt)
                     real JAB=DAB*deltaFugacity/m_dr; //flux btw 2 sites
                     real DC=dt*JAB/m_dr;
 
-                    current(i,j,k)[CONCENTRATION] += DC*flowDirection;
-
+                    next(i,j,k)[CONCENTRATION] += DC*flowDirection;
                 }
             }
         }
     }
+
+    current = next;
 }
 
 real ForwardEuler::dr() const
@@ -83,7 +81,8 @@ real ForwardEuler::dr() const
     return m_dr;
 }
 
-void ForwardEuler::setDr(real dr)
+void ForwardEuler::initialize(real dr)
 {
     m_dr = dr;
+    m_initialized = true;
 }
