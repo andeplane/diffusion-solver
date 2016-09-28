@@ -9,7 +9,7 @@ public:
     FixedBoundaryValue(int dimension, real value1, real value2);
 
     // Modifier interface
-    virtual void apply(std::shared_ptr<class Grid> gridPtr) override;
+    virtual void apply(Grid& gridPtr) override;
 private:
     int m_dimension;
     real m_value1;

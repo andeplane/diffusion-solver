@@ -13,16 +13,16 @@ public:
     int nx() const { return m_nx; }
     int ny() const { return m_ny; }
     int nz() const { return m_nz; }
-    int index(const int i, const int j, const int k) { return i*m_ny*m_nz+j*m_nz+k; }
-    int indexPeriodic(const int i, const int j, const int k) { return ( (i+m_nx) % m_nx)*m_ny*m_nz + ( (j+m_ny) % m_ny)*m_nz + ( (k+m_nz) % m_nz); }
-    int indexVector(const int index, int &i, int &j, int &k) { i = index/(m_ny*m_nz); j = (index / m_nz) % m_ny; k = index % m_nz; }
+    int numProperties() const;
+    inline int index(const int i, const int j, const int k) { return i*m_ny*m_nz+j*m_nz+k; }
+    inline int indexPeriodic(const int i, const int j, const int k) { return ( (i+m_nx) % m_nx)*m_ny*m_nz + ( (j+m_ny) % m_ny)*m_nz + ( (k+m_nz) % m_nz); }
+    inline int indexVector(const int index, int &i, int &j, int &k) { i = index/(m_ny*m_nz); j = (index / m_nz) % m_ny; k = index % m_nz; }
+    inline Cell &operator()(const int i, const int j, const int k) { return m_cells.at(index(i,j,k)); }
+    inline Cell &operator[](const int index) { return m_cells[index]; }
     void iterate(std::function<void(Cell &cell)> action);
     void iterate(std::function<void(Cell &cell, int i, int j, int k)> action);
     void writeVTK(std::string filename, int propertyIndex);
-    Cell &operator()(const int i, const int j, const int k) { return m_cells[index(i,j,k)]; }
-    Cell &operator[](const int index) { return m_cells[index]; }
-    int numProperties() const;
-
+    void writeCSV(std::string filename, int propertyIndex);
 private:
     std::vector<Cell> m_cells;
     int m_nx;

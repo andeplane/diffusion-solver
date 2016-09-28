@@ -39,6 +39,29 @@ void Grid::iterate(function<void (Cell &cell, int i, int j, int k)> action)
     }
 }
 
+void Grid::writeCSV(string filename, int propertyIndex)
+{
+    ofstream file(filename.c_str(), ios::out | ios::binary);
+
+    if(!file.is_open()) {
+        cerr << "Grid::writeVTK(string filename) error, could not open file " << filename <<  ", aborting!" << endl;
+        exit(1);
+    }
+
+    // column-major ordering...
+    file << "x coord, y coord, z coord, scalar" << endl;
+    for (int k = 0; k < m_nz; k++) {
+        for (int j = 0; j < m_ny; j++) {
+            for (int i = 0; i < m_nx; i++) {
+                Cell &cell = m_cells[index(i,j,k)];
+                file << i << "," << j << "," << k << "," << cell[propertyIndex] << endl;
+            }
+        }
+    }
+
+    file.close();
+}
+
 void Grid::writeVTK(string filename, int propertyIndex)
 {
     ofstream file(filename.c_str(), ios::out | ios::binary);

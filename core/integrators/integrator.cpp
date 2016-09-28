@@ -3,17 +3,9 @@
 #include "../system.h"
 #include <iostream>
 using namespace std;
-Integrator::Integrator() : m_initialized(false)
+Integrator::Integrator()
 {
 
-}
-
-void Integrator::tick(shared_ptr<System>, real dt)
-{
-    if(!m_initialized) {
-        cerr << "Error, integrator is not initialized." << endl;
-        terminate();
-    }
 }
 
 void Integrator::addModifier(std::shared_ptr<Modifier> modifier)

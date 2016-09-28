@@ -8,11 +8,11 @@ class Cell
 public:
     Cell(int numProperties);
     std::vector<real> &contents();
-    real operator()(int index) { return m_contents[index]; }
-    real &operator[](int index) { return m_contents[index]; }
-    int type() const { return m_type; }
+    inline real operator()(int index) { return m_contents[index]; }
+    inline real &operator[](int index) { return m_contents[index]; }
+    inline int type() const { return m_type; }
+    inline int poreSize() const { return m_poreSize; }
     void setType(int type);
-    int poreSize() const { return m_poreSize; }
     void setPoreSize(int poreSize);
 
 private:

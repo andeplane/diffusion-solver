@@ -43,16 +43,34 @@ namespace Geometry {
         return grid;
     }
 
-    Grid linearGridX(int nx, int ny, int nz, int numProperties, real value1, real value2) {
-        Grid grid(nx, ny, nz, numProperties);
+    shared_ptr<Grid> linearGridX(int nx, int ny, int nz, int numProperties, int poreSize, real value1, real value2) {
+        auto gridPtr = make_shared<Grid>( Grid(nx, ny, nz, numProperties) );
+        Grid &grid = *gridPtr;
         grid.iterate([&](Cell &cell, int i, int , int ) {
             cell.setType(0);
             real factor = float(i) / (grid.nx()-1);
             real value = factor * value2 + (1 - factor) * value1;
             cell[CONCENTRATION] = value;
+            cell.setPoreSize(poreSize);
         });
 
-        return grid;
+        return gridPtr;
+    }
+
+    shared_ptr<Grid> initialWallX(int nx, int ny, int nz, int numProperties, int poreSize, real value1, real value2) {
+        auto gridPtr = make_shared<Grid>( Grid(nx, ny, nz, numProperties) );
+        Grid &grid = *gridPtr;
+        grid.iterate([&](Cell &cell, int i, int , int ) {
+            cell.setType(0);
+            if(i==0) {
+                cell[CONCENTRATION] = value1;
+            } else {
+                cell[CONCENTRATION] = value2;
+            }
+            cell.setPoreSize(poreSize);
+        });
+
+        return gridPtr;
     }
 
 }
