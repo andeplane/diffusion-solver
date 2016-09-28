@@ -17,8 +17,13 @@ public:
     inline int index(const int i, const int j, const int k) { return i*m_ny*m_nz+j*m_nz+k; }
     inline int indexPeriodic(const int i, const int j, const int k) { return ( (i+m_nx) % m_nx)*m_ny*m_nz + ( (j+m_ny) % m_ny)*m_nz + ( (k+m_nz) % m_nz); }
     inline int indexVector(const int index, int &i, int &j, int &k) { i = index/(m_ny*m_nz); j = (index / m_nz) % m_ny; k = index % m_nz; }
+#ifdef DEBUG
     inline Cell &operator()(const int i, const int j, const int k) { return m_cells.at(index(i,j,k)); }
+    inline Cell &operator[](const int index) { return return m_cells.at(index(i,j,k); }
+#else
+    inline Cell &operator()(const int i, const int j, const int k) { return m_cells[index(i,j,k)]; }
     inline Cell &operator[](const int index) { return m_cells[index]; }
+#endif
     void iterate(std::function<void(Cell &cell)> action);
     void iterate(std::function<void(Cell &cell, int i, int j, int k)> action);
     void writeVTK(std::string filename, int propertyIndex);

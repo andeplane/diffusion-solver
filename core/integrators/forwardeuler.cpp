@@ -23,12 +23,10 @@ real DSelf(int poreSize) {
     real D2 = 0.000000001542;
     real D3 = -0.000000003727;
     real D4 = 0.0000000303;
-    //return (D1*(poreSize)*(poreSize)*(poreSize)+D2*(poreSize)*(poreSize)+D3*(poreSize)+D4); //[m2/s]
     return (D1*(poreSize)*(poreSize)*(poreSize)+D2*(poreSize)*(poreSize)+D3*(poreSize)+D4)*1e6; //[nm2/ps]
 }
 
 real fugacity(real concentration, int poreSize) {
-    // cout << "fugacity(" << concentration << "," << poreSize << ") K = " << K(poreSize) << endl;
     return concentration/K(poreSize);
 }
 
@@ -40,7 +38,14 @@ void ForwardEuler::tick(std::shared_ptr<System> systemPtr, real dt)
 {
     System &system = *systemPtr;
     Grid &current = *system.grid();
-    Grid next = current;
+    if(!m_grid) {
+        cout << "We don't have grid, do it now" << endl;
+        Grid grid = current;
+        m_grid = make_shared<Grid>(grid);
+    }
+    Grid &next = *m_grid;
+    next = current;
+
     real dr = system.lx(); // TODO: don't assume equal length in all dimensions
     real oneOverDr = 1.0 / dr;
     for(int i=0; i<current.nx(); i++) {

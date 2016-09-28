@@ -1,5 +1,7 @@
 #include <iostream>
 #include <functional>
+#include <ctime>
+
 #include "integrators/forwardeuler.h"
 #include "modifiers/fixedboundaryvalue.h"
 #include "geometry.h"
@@ -24,13 +26,18 @@ int main(int argc, char *argv[])
     system.setLength(1.0, 1.0, 1.0);
     ForwardEuler integrator;
     integrator.addModifier(boundaryCondition);
+    clock_t begin = clock();
     for(int i=0; i<100; i++) {
         cout << i << endl;
         char filename[1000];
         sprintf(filename, "/projects/poregenerator/vtk/data%d.vtk", i);
-        grid.writeVTK(string(filename), CONCENTRATION);
+        // grid.writeVTK(string(filename), CONCENTRATION);
         integrator.tick(make_shared<System>(system), dt);
     }
+
+    clock_t end = clock();
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+    cout << "Simulation finished using " << 1000*elapsed_secs << " ms." << endl;
 
     return 0;
 }
