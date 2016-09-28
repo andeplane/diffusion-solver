@@ -2,7 +2,8 @@
 using namespace std;
 
 Cell::Cell(int numProperties) :
-    m_type(0),
+    m_type(-1),
+    m_poreSize(-1),
     m_contents(numProperties, 0)
 {
 

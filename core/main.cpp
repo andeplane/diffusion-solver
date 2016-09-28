@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     real dt = dx*dx / 10.;
 
 
-    auto boundaryCondition = make_shared<FixedBoundaryValue>( FixedBoundaryValue(0, 1, 0) );
+    auto boundaryCondition = make_shared<FixedBoundaryValue>( FixedBoundaryValue(1, 0) );
 
     system.setLength(1.0, 1.0, 1.0);
     ForwardEuler integrator;

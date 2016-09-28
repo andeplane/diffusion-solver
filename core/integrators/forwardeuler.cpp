@@ -91,10 +91,7 @@ void ForwardEuler::tick(std::shared_ptr<System> systemPtr, real dt)
     }
     for(auto modifierPtr : m_modifiers) {
         Modifier &modifier = *modifierPtr;
-        modifier.apply(next);
+        modifier.apply(next, CONCENTRATION);
     }
-    next.iterate([&](Cell &cell, int i, int j, int k) {
-        cout << i << "," << j << "," << k << ": " << cell(CONCENTRATION) << endl;
-    });
     swap(current.cells(), next.cells());
 }

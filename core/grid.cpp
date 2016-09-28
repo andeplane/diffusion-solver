@@ -90,7 +90,10 @@ void Grid::writeVTK(string filename, int propertyIndex)
     for (int k = 0; k < m_nz; k++) {
         for (int j = 0; j < m_ny; j++) {
             for (int i = 0; i < m_nx; i++) {
+                // Cell &cell = m_cells.at(index(i,j,k));
                 Cell &cell = m_cells[index(i,j,k)];
+                // Cell &cell = m_cells[index(i,j,k)];
+                // file << cell[propertyIndex] << endl;
                 file << cell[propertyIndex] << endl;
             }
         }

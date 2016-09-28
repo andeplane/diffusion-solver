@@ -6,12 +6,11 @@
 class FixedBoundaryValue : public Modifier
 {
 public:
-    FixedBoundaryValue(int dimension, real value1, real value2);
+    FixedBoundaryValue(real value1, real value2);
 
     // Modifier interface
-    virtual void apply(Grid& gridPtr) override;
+    virtual void apply(Grid& gridPtr, int propertyIndex) override;
 private:
-    int m_dimension;
     real m_value1;
     real m_value2;
 };
