@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     ForwardEuler integrator;
     integrator.addModifier(boundaryCondition);
     clock_t begin = clock();
-    for(int i=0; i<100; i++) {
+    for(int i=0; i<20; i++) {
         cout << i << endl;
         char filename[1000];
         sprintf(filename, "/projects/poregenerator/vtk/data%d.vtk", i);

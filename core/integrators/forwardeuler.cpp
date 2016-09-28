@@ -10,6 +10,9 @@ ForwardEuler::ForwardEuler() : Integrator()
 
 }
 
+real K_tabulated[20];
+real K_inv_tabulated[20];
+bool filled = false;
 
 real K(int poreSize) {
     const real Ka = 0.1586;
@@ -27,15 +30,23 @@ real DSelf(int poreSize) {
 }
 
 real fugacity(real concentration, int poreSize) {
-    return concentration/K(poreSize);
+    // return concentration/K(poreSize);
+    return concentration*K_inv_tabulated[poreSize];
 }
 
 real concentration(real fugacity, int poreSize) {
-    return fugacity*K(poreSize);
+    return fugacity*K_tabulated[poreSize];
 }
 
 void ForwardEuler::tick(std::shared_ptr<System> systemPtr, real dt)
 {
+    if(!filled) {
+        for(int i=0; i<20; i++) {
+            K_tabulated[i] = K(i);
+            K_inv_tabulated[i] = 1.0 / K_tabulated[i];
+        }
+        filled = true;
+    }
     System &system = *systemPtr;
     Grid &current = *system.grid();
     if(!m_grid) {
