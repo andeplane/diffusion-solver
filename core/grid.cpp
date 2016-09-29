@@ -3,9 +3,9 @@
 #include <fstream>
 using namespace std;
 
-Grid::Grid(int nx, int ny, int nz, int numProperties) :
+Grid::Grid(int nx, int ny, int nz) :
     m_grid(nx*ny*nz, 0), m_poreSizes(nx*ny*nz, 0),
-    m_nx(nx), m_ny(ny), m_nz(nz), m_numProperties(numProperties)
+    m_nx(nx), m_ny(ny), m_nz(nz)
 {
 
 }

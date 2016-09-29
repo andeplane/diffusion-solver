@@ -5,7 +5,6 @@ CONFIG -= qt
 QMAKE_CXXFLAGS += -g
 #DEFINES += DEBUG
 SOURCES += main.cpp \
-    cell.cpp \
     grid.cpp \
     geometry.cpp \
     integrators/integrator.cpp \
@@ -15,7 +14,6 @@ SOURCES += main.cpp \
     modifiers/fixedboundaryvalue.cpp
 
 HEADERS += \
-    cell.h \
     common.h \
     grid.h \
     geometry.h \

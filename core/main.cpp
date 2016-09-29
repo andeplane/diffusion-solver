@@ -10,14 +10,14 @@
 
 using namespace std;
 
-int main(int argc, char *argv[])
+int main(int , char **)
 {
-    auto gridPtr = Geometry::initialWallX(32, 32, 32, 2, 19, 1.0, 0.0);
+    auto gridPtr = Geometry::initialWallX(32, 32, 32, 19, 1.0, 0.0);
     cout << "Initializing grid " << endl;
     // auto gridPtr = Geometry::initialWallX(500,500,500, 2, 19, 1.0, 0.0);
     Grid &grid = *gridPtr;
     cout << "Doing stuff with grid " << endl;
-    grid.iterate([&](real &value, short &poreSize, int i, int j, int k) {
+    grid.iterate([&](real &, short &poreSize, int i, int , int ) {
         if(i > 3) {
             poreSize = 2;
         }
