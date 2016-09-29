@@ -12,13 +12,22 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-    auto gridPtr = Geometry::initialWallX(32, 32, 32, 2, 10, 1.0, 0.0);
+    // auto gridPtr = Geometry::initialWallX(32, 32, 32, 2, 19, 1.0, 0.0);
+    cout << "Initializing grid " << endl;
+    auto gridPtr = Geometry::initialWallX(500,500,500, 2, 19, 1.0, 0.0);
     Grid &grid = *gridPtr;
+    cout << "Doing stuff with grid " << endl;
+    grid.iterate([&](Cell &cell, int i, int j, int k) {
+        if(i > 3) {
+            cell.setPoreSize(2);
+        }
+    });
 
     System system;
     system.setGrid(gridPtr);
+    cout << "System exists" << endl;
     real dx = 1;
-    real dt = dx*dx / 10.;
+    real dt = dx*dx / 3.;
 
 
     auto boundaryCondition = make_shared<FixedBoundaryValue>( FixedBoundaryValue(1, 0) );
@@ -27,11 +36,16 @@ int main(int argc, char *argv[])
     ForwardEuler integrator;
     integrator.addModifier(boundaryCondition);
     clock_t begin = clock();
-    for(int i=0; i<20; i++) {
+    int printEvery = 1;
+    int printCounter = 0;
+    cout << "Starting timesteps" << endl;
+    for(int i=0; i<10; i++) {
         cout << i << endl;
-        char filename[1000];
-        sprintf(filename, "/projects/poregenerator/vtk/data%d.vtk", i);
-        // grid.writeVTK(string(filename), CONCENTRATION);
+        if(i % printEvery == 0) {
+            char filename[1000];
+            sprintf(filename, "/projects/poregenerator/vtk/data%d.vtk", printCounter++);
+            // grid.writeVTK(string(filename), CONCENTRATION);
+        }
         integrator.tick(make_shared<System>(system), dt);
     }
 

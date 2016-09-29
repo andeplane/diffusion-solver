@@ -7,7 +7,8 @@ Grid::Grid(int nx, int ny, int nz, int numProperties) :
     m_cells(nx*ny*nz, Cell(numProperties)),
     m_nx(nx), m_ny(ny), m_nz(nz), m_numProperties(numProperties)
 {
-
+    m_grid.resize(nx*ny*nz, 0);
+    m_poreSizes.resize(nx*ny*nz, 0);
 }
 
 vector<Cell> &Grid::cells()
@@ -39,6 +40,17 @@ void Grid::iterate(function<void (Cell &cell, int i, int j, int k)> action)
     }
 }
 
+void Grid::iterate(function<void (real &gridPoint, short &poreSize, int i, int j, int k)> action)
+{
+    for(int i=0; i<m_nx; i++) {
+        for(int j=0; j<m_ny; j++) {
+            for(int k=0; k<m_nz; k++) {
+                action(m_grid[index(i,j,k)], m_poreSizes[index(i,j,k)], i, j, k);
+            }
+        }
+    }
+}
+
 void Grid::writeCSV(string filename, int propertyIndex)
 {
     ofstream file(filename.c_str(), ios::out | ios::binary);
@@ -60,6 +72,16 @@ void Grid::writeCSV(string filename, int propertyIndex)
     }
 
     file.close();
+}
+
+std::vector<short> &Grid::poreSizes()
+{
+    return m_poreSizes;
+}
+
+std::vector<real> &Grid::grid()
+{
+    return m_grid;
 }
 
 void Grid::writeVTK(string filename, int propertyIndex)

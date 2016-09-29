@@ -26,10 +26,16 @@ public:
 #endif
     void iterate(std::function<void(Cell &cell)> action);
     void iterate(std::function<void(Cell &cell, int i, int j, int k)> action);
+    void iterate(std::function<void (real &, short &, int, int, int)> action);
     void writeVTK(std::string filename, int propertyIndex);
     void writeCSV(std::string filename, int propertyIndex);
+    std::vector<real> &grid();
+    std::vector<short> &poreSizes();
+
 private:
-    std::vector<Cell> m_cells;
+    std::vector<Cell>  m_cells;
+    std::vector<real>  m_grid;
+    std::vector<short> m_poreSizes;
     int m_nx;
     int m_ny;
     int m_nz;
