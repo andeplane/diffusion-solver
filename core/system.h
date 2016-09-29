@@ -15,7 +15,6 @@ public:
     real lx() { return m_length[0]; }
     real ly() { return m_length[1]; }
     real lz() { return m_length[2]; }
-    void printValue();
 private:
     std::shared_ptr<class Grid> m_grid;
     real m_length[3];

@@ -23,12 +23,3 @@ void System::setLength(real lx, real ly, real lz)
     m_length[1] = ly;
     m_length[2] = lz;
 }
-
-#include <iostream>
-using namespace std;
-
-void System::printValue()
-{
-    cout << (*m_grid)(1,1,1)(CONCENTRATION) << endl;
-}
-

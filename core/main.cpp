@@ -12,14 +12,14 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-    // auto gridPtr = Geometry::initialWallX(32, 32, 32, 2, 19, 1.0, 0.0);
+    auto gridPtr = Geometry::initialWallX(32, 32, 32, 2, 19, 1.0, 0.0);
     cout << "Initializing grid " << endl;
-    auto gridPtr = Geometry::initialWallX(500,500,500, 2, 19, 1.0, 0.0);
+    // auto gridPtr = Geometry::initialWallX(500,500,500, 2, 19, 1.0, 0.0);
     Grid &grid = *gridPtr;
     cout << "Doing stuff with grid " << endl;
-    grid.iterate([&](Cell &cell, int i, int j, int k) {
+    grid.iterate([&](real &value, short &poreSize, int i, int j, int k) {
         if(i > 3) {
-            cell.setPoreSize(2);
+            poreSize = 2;
         }
     });
 
@@ -39,12 +39,12 @@ int main(int argc, char *argv[])
     int printEvery = 1;
     int printCounter = 0;
     cout << "Starting timesteps" << endl;
-    for(int i=0; i<10; i++) {
+    for(int i=0; i<100; i++) {
         cout << i << endl;
         if(i % printEvery == 0) {
             char filename[1000];
             sprintf(filename, "/projects/poregenerator/vtk/data%d.vtk", printCounter++);
-            // grid.writeVTK(string(filename), CONCENTRATION);
+            grid.writeVTK(string(filename));
         }
         integrator.tick(make_shared<System>(system), dt);
     }

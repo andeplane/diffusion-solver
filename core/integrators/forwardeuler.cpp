@@ -60,7 +60,6 @@ void ForwardEuler::tick(std::shared_ptr<System> systemPtr, real dt)
     real dr = system.lx(); // TODO: don't assume equal length in all dimensions
     real oneOverDr = 1.0 / dr;
     for(int i=0; i<current.nx(); i++) {
-        cout << "  Working on i = " << i << endl;
         for(int j=0; j<current.ny(); j++) {
             for(int k=0; k<current.nz(); k++) {
                 // Loop through the 3 dimensions and the nearest neighbor in each
@@ -69,38 +68,40 @@ void ForwardEuler::tick(std::shared_ptr<System> systemPtr, real dt)
                         int di = a==0 ? lowerDimension : 0;
                         int dj = a==1 ? lowerDimension : 0;
                         int dk = a==2 ? lowerDimension : 0;
-                        Cell &cellA = current(i,j,k);
-                        Cell &cellB = current[ current.indexPeriodic(i+di,j+dj,k+dk) ];
+                        int indexA = current.index(i,j,k);
+                        int indexB = current.indexPeriodic(i+di,j+dj,k+dk);
+                        short poreSizeA = current.poreSize(indexA);
+                        short poreSizeB = current.poreSize(indexB);
 
-                        real concentrationA = cellA[CONCENTRATION];
-                        real concentrationB = cellB[CONCENTRATION];
+                        real concentrationA = current[indexA];
+                        real concentrationB = current[indexB];
 
-                        real fugacityA = fugacity(concentrationA, cellA.poreSize());
-                        real fugacityB = fugacity(concentrationB, cellB.poreSize());
+                        real fugacityA = fugacity(concentrationA, poreSizeA);
+                        real fugacityB = fugacity(concentrationB, poreSizeB);
 
                         real deltaFugacity = fugacityB - fugacityA;
 
-                        real DA = DSelf(cellA.poreSize()) * K_tabulated[cellA.poreSize()];
-                        real DB = DSelf(cellB.poreSize()) * K_tabulated[cellB.poreSize()];
+                        real DA = DSelf(poreSizeA) * K_tabulated[poreSizeA];
+                        real DB = DSelf(poreSizeB) * K_tabulated[poreSizeB];
 
                         real DAB= 2.0*DA*DB/(DA+DB); //L-cell size // m^2 / s
                         real JAB=DAB*deltaFugacity*oneOverDr; // m^2/s*bar/r
                         real deltaConcentration=dt*JAB*oneOverDr;
 
-                        if(next(i,j,k)(CONCENTRATION)+deltaConcentration<0) {
+                        if(next(i,j,k)+deltaConcentration<0) {
                             cout << "Working with (" << i << "," << j << "," << k << ") and (" << i+di << "," << j+dj << "," << k+dk << ")" << endl;
                             cout << "Concentrations: " << concentrationA << " and " << concentrationB << endl;
                             cout << "Fugacities: " << fugacityA << " and " << fugacityB << endl;
                             cout << "Self diffusion: " << DA << " and " << DB << endl;
                             cout << "Effective DAB: " << DAB << endl;
                             cout << "Flux between sites: " << JAB << endl;
-                            cout << "DeltaC = " << deltaConcentration << " and CONC_A = " << cellA(CONCENTRATION) << " and CONC_B = " << cellB(CONCENTRATION) << endl;
-                            cout << "next(i,j,k)[CONCENTRATION] = " << next(i,j,k)(CONCENTRATION) << endl << endl;
+                            cout << "DeltaC = " << deltaConcentration << " and CONC_A = " << concentrationA << " and CONC_B = " << concentrationB << endl;
+                            cout << "next(i,j,k)[CONCENTRATION] = " << next(i,j,k) << endl << endl;
                             cout << "Error, DC was larger than concentration in one of the cells. You need to reduce timestep." << endl;
                             terminate();
                         }
                         
-                        next(i,j,k)[CONCENTRATION] += deltaConcentration; // the other cell will get its contribution at a later stage.
+                        next(i,j,k) += deltaConcentration; // the other cell will get its contribution at a later stage.
                         // TODO: use "newton's third law" here
                     }
                 }
@@ -109,7 +110,7 @@ void ForwardEuler::tick(std::shared_ptr<System> systemPtr, real dt)
     }
     for(auto modifierPtr : m_modifiers) {
         Modifier &modifier = *modifierPtr;
-        modifier.apply(next, CONCENTRATION);
+        modifier.apply(next);
     }
-    swap(current.cells(), next.cells());
+    swap(current.grid(), next.grid());
 }

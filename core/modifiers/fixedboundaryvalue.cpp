@@ -9,14 +9,14 @@ FixedBoundaryValue::FixedBoundaryValue(real value1, real value2) : Modifier(),
 
 }
 
-void FixedBoundaryValue::apply(Grid &grid, int propertyIndex)
+void FixedBoundaryValue::apply(Grid &grid)
 {
     for(int i=0; i<grid.ny(); i++) {
         for(int j=0; j<grid.nz(); j++) {
             int cj = i;
             int ck = j;
-            grid(0, cj, ck)[propertyIndex] = m_value1;
-            grid(grid.nx()-1, cj, ck)[propertyIndex] = m_value2;
+            grid(0, cj, ck) = m_value1;
+            grid(grid.nx()-1, cj, ck) = m_value2;
         }
     }
 }

@@ -4,40 +4,10 @@
 using namespace std;
 
 Grid::Grid(int nx, int ny, int nz, int numProperties) :
-    m_cells(nx*ny*nz, Cell(numProperties)),
+    m_grid(nx*ny*nz, 0), m_poreSizes(nx*ny*nz, 0),
     m_nx(nx), m_ny(ny), m_nz(nz), m_numProperties(numProperties)
 {
-    m_grid.resize(nx*ny*nz, 0);
-    m_poreSizes.resize(nx*ny*nz, 0);
-}
 
-vector<Cell> &Grid::cells()
-{
-    return m_cells;
-}
-
-void Grid::iterate(function<void (Cell &cell)> action)
-{
-    for(int i=0; i<m_nx; i++) {
-        for(int j=0; j<m_ny; j++) {
-            for(int k=0; k<m_nz; k++) {
-                Cell &cell = m_cells[index(i,j,k)];
-                action(cell);
-            }
-        }
-    }
-}
-
-void Grid::iterate(function<void (Cell &cell, int i, int j, int k)> action)
-{
-    for(int i=0; i<m_nx; i++) {
-        for(int j=0; j<m_ny; j++) {
-            for(int k=0; k<m_nz; k++) {
-                Cell &cell = m_cells[index(i,j,k)];
-                action(cell, i, j, k);
-            }
-        }
-    }
 }
 
 void Grid::iterate(function<void (real &gridPoint, short &poreSize, int i, int j, int k)> action)
@@ -51,7 +21,7 @@ void Grid::iterate(function<void (real &gridPoint, short &poreSize, int i, int j
     }
 }
 
-void Grid::writeCSV(string filename, int propertyIndex)
+void Grid::writeCSV(string filename)
 {
     ofstream file(filename.c_str(), ios::out | ios::binary);
 
@@ -65,8 +35,8 @@ void Grid::writeCSV(string filename, int propertyIndex)
     for (int k = 0; k < m_nz; k++) {
         for (int j = 0; j < m_ny; j++) {
             for (int i = 0; i < m_nx; i++) {
-                Cell &cell = m_cells[index(i,j,k)];
-                file << i << "," << j << "," << k << "," << cell[propertyIndex] << endl;
+                const real &value = m_grid[index(i,j,k)];
+                file << i << "," << j << "," << k << "," << value << endl;
             }
         }
     }
@@ -84,7 +54,7 @@ std::vector<real> &Grid::grid()
     return m_grid;
 }
 
-void Grid::writeVTK(string filename, int propertyIndex)
+void Grid::writeVTK(string filename)
 {
     ofstream file(filename.c_str(), ios::out | ios::binary);
 
@@ -112,19 +82,11 @@ void Grid::writeVTK(string filename, int propertyIndex)
     for (int k = 0; k < m_nz; k++) {
         for (int j = 0; j < m_ny; j++) {
             for (int i = 0; i < m_nx; i++) {
-                // Cell &cell = m_cells.at(index(i,j,k));
-                Cell &cell = m_cells[index(i,j,k)];
-                // Cell &cell = m_cells[index(i,j,k)];
-                // file << cell[propertyIndex] << endl;
-                file << cell[propertyIndex] << endl;
+                const real &value = m_grid[index(i,j,k)];
+                file << value << endl;
             }
         }
     }
 
     file.close();
-}
-
-int Grid::numProperties() const
-{
-    return m_numProperties;
 }

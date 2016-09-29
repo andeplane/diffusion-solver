@@ -9,7 +9,7 @@ public:
     FixedBoundaryValue(real value1, real value2);
 
     // Modifier interface
-    virtual void apply(Grid& gridPtr, int propertyIndex) override;
+    virtual void apply(Grid& gridPtr) override;
 private:
     real m_value1;
     real m_value2;
