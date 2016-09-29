@@ -5,12 +5,22 @@
 #include <iostream>
 #include <cmath>
 using namespace std;
-ForwardEuler::ForwardEuler() : Integrator()
+ForwardEuler::ForwardEuler() : Integrator(),
+    computeFlux(false)
 {
 
 }
 
-void ForwardEuler::tick(std::shared_ptr<System> systemPtr, real dt)
+void ForwardEuler::tick(std::shared_ptr<System> systemPtr, real dt) {
+    if(computeFlux) {
+        doTick<1>(systemPtr, dt);
+    } else {
+        doTick<0>(systemPtr, dt);
+    }
+}
+
+template <int COMPUTEFLUX>
+void ForwardEuler::doTick(std::shared_ptr<System> systemPtr, real dt)
 {
     if(!filled) {
         createTables();
@@ -24,6 +34,13 @@ void ForwardEuler::tick(std::shared_ptr<System> systemPtr, real dt)
 
     Grid &next = *m_grid;
     next = current;
+
+    real fluxX0 = 0;
+    real fluxX1 = 0;
+//    real fluxY0 = 0;
+//    real fluxY1 = 0;
+//    real fluxZ0 = 0;
+//    real fluxZ1 = 0;
 
     real dr = system.lx(); // TODO: don't assume equal length in all dimensions
     real oneOverDr = 1.0 / dr;
@@ -73,10 +90,21 @@ void ForwardEuler::tick(std::shared_ptr<System> systemPtr, real dt)
 #endif
                         next(i,j,k) += deltaConcentration; // the other cell will get its contribution at a later stage.
                         // TODO: use "newton's third law" here
+                        if(COMPUTEFLUX) {
+                            if(i==1 && di==-1) {
+                                fluxX0 += deltaConcentration;
+                            } if(i==current.nx()-2 && di==1) {
+                                fluxX1 += deltaConcentration;
+                            }
+                        }
                     }
                 }
             }
         }
+    }
+
+    if(COMPUTEFLUX) {
+        cout << "Fluxes: " << fluxX0 << " and " << fluxX1 << endl;
     }
 
     for(auto modifierPtr : m_modifiers) {
