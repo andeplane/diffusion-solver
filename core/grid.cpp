@@ -36,7 +36,7 @@ void Grid::writeCSV(string filename)
         for (int j = 0; j < m_ny; j++) {
             for (int i = 0; i < m_nx; i++) {
                 const real &value = m_grid[index(i,j,k)];
-                file << i << "," << j << "," << k << "," << value << endl;
+                file << i << "," << j << "," << k << "," << value << "\n";
             }
         }
     }
