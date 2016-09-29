@@ -12,6 +12,7 @@ ForwardEuler::ForwardEuler() : Integrator()
 
 real K_tabulated[20];
 real K_inv_tabulated[20];
+real D_tabulated[20];
 bool filled = false;
 
 real K(int poreSize) { // Units: 1 / (nm^3*bar)
@@ -30,11 +31,11 @@ real DSelf(int poreSize) {
     return (D1*(poreSize)*(poreSize)*(poreSize)+D2*(poreSize)*(poreSize)+D3*(poreSize)+D4); //[nm2/ps]
 }
 
-real fugacity(real concentration, int poreSize) {
+inline real fugacity(real concentration, int poreSize) {
     return concentration*K_inv_tabulated[poreSize];
 }
 
-real concentration(real fugacity, int poreSize) {
+inline real concentration(real fugacity, int poreSize) {
     return fugacity*K_tabulated[poreSize];
 }
 
@@ -44,6 +45,7 @@ void ForwardEuler::tick(std::shared_ptr<System> systemPtr, real dt)
         for(int i=0; i<20; i++) {
             K_tabulated[i] = K(i);
             K_inv_tabulated[i] = 1.0 / K_tabulated[i];
+            D_tabulated[i] = DSelf(i);
         }
         filled = true;
     }
@@ -63,31 +65,33 @@ void ForwardEuler::tick(std::shared_ptr<System> systemPtr, real dt)
         for(int j=0; j<current.ny(); j++) {
             for(int k=0; k<current.nz(); k++) {
                 // Loop through the 3 dimensions and the nearest neighbor in each
+                // 14 flops?
+                // N^3 * 6 * 14 = 10500000000 = 1e10 (N=500)
                 for(int lowerDimension=-1; lowerDimension<=1; lowerDimension+=2) {
                     for(int a=0; a<3; a++) {
-                        int di = a==0 ? lowerDimension : 0;
-                        int dj = a==1 ? lowerDimension : 0;
-                        int dk = a==2 ? lowerDimension : 0;
-                        int indexA = current.index(i,j,k);
-                        int indexB = current.indexPeriodic(i+di,j+dj,k+dk);
-                        short poreSizeA = current.poreSize(indexA);
-                        short poreSizeB = current.poreSize(indexB);
+                        const int di = a==0 ? lowerDimension : 0;
+                        const int dj = a==1 ? lowerDimension : 0;
+                        const int dk = a==2 ? lowerDimension : 0;
+                        const int indexA = current.index(i,j,k);
+                        const int indexB = current.indexPeriodic(i+di,j+dj,k+dk);
+                        const short poreSizeA = current.poreSize(indexA);
+                        const short poreSizeB = current.poreSize(indexB);
 
-                        real concentrationA = current[indexA];
-                        real concentrationB = current[indexB];
+                        const real concentrationA = current[indexA];
+                        const real concentrationB = current[indexB];
 
-                        real fugacityA = fugacity(concentrationA, poreSizeA);
-                        real fugacityB = fugacity(concentrationB, poreSizeB);
+                        const real fugacityA = fugacity(concentrationA, poreSizeA);
+                        const real fugacityB = fugacity(concentrationB, poreSizeB);
 
-                        real deltaFugacity = fugacityB - fugacityA;
+                        const real deltaFugacity = fugacityB - fugacityA;
 
-                        real DA = DSelf(poreSizeA) * K_tabulated[poreSizeA];
-                        real DB = DSelf(poreSizeB) * K_tabulated[poreSizeB];
+                        const real DA = D_tabulated[poreSizeA] * K_tabulated[poreSizeA];
+                        const real DB = D_tabulated[poreSizeB] * K_tabulated[poreSizeB];
 
-                        real DAB= 2.0*DA*DB/(DA+DB); //L-cell size // m^2 / s
-                        real JAB=DAB*deltaFugacity*oneOverDr; // m^2/s*bar/r
-                        real deltaConcentration=dt*JAB*oneOverDr;
-
+                        const real DAB= 2.0*DA*DB/(DA+DB); //L-cell size // m^2 / s
+                        const real JAB=DAB*deltaFugacity*oneOverDr; // m^2/s*bar/r
+                        const real deltaConcentration=dt*JAB*oneOverDr;
+#ifdef DEBUG
                         if(next(i,j,k)+deltaConcentration<0) {
                             cout << "Working with (" << i << "," << j << "," << k << ") and (" << i+di << "," << j+dj << "," << k+dk << ")" << endl;
                             cout << "Concentrations: " << concentrationA << " and " << concentrationB << endl;
@@ -100,7 +104,7 @@ void ForwardEuler::tick(std::shared_ptr<System> systemPtr, real dt)
                             cout << "Error, DC was larger than concentration in one of the cells. You need to reduce timestep." << endl;
                             terminate();
                         }
-                        
+#endif
                         next(i,j,k) += deltaConcentration; // the other cell will get its contribution at a later stage.
                         // TODO: use "newton's third law" here
                     }
@@ -108,6 +112,7 @@ void ForwardEuler::tick(std::shared_ptr<System> systemPtr, real dt)
             }
         }
     }
+
     for(auto modifierPtr : m_modifiers) {
         Modifier &modifier = *modifierPtr;
         modifier.apply(next);
