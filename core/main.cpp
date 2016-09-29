@@ -16,19 +16,20 @@ int main(int , char **)
     cout << "Initializing grid " << endl;
     Grid &grid = *gridPtr;
 
-//    grid.iterate([&](real &, short &poreSize, int i, int , int ) {
-//        if(i > 3) {
-//            poreSize = 2;
-//        }
-//    });
+
     System system;
     system.setGrid(gridPtr);
     cout << "System exists" << endl;
     real dx = 1;
-    real dt = dx*dx / 3.;
+    real dt = dx*dx / 10.;
 
 
     auto boundaryCondition = make_shared<FixedBoundaryValue>( FixedBoundaryValue(1, 0) );
+    grid.iterate([&](real &, short &poreSize, int i, int , int ) {
+        if(i == 0 || i == grid.nx()-1) {
+            poreSize = 50;
+        }
+    });
 
     system.setLength(1.0, 1.0, 1.0);
     ForwardEuler integrator;

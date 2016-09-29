@@ -16,7 +16,7 @@ public:
     inline void indexVector(const int index, int &i, int &j, int &k) { i = index/(m_ny*m_nz); j = (index / m_nz) % m_ny; k = index % m_nz; }
 #ifdef DEBUG
     inline real &operator()(const int i, const int j, const int k) { return m_grid.at(index(i,j,k)); }
-    inline real &operator[](const int index) { return return m_grid.at(index(i,j,k); }
+    inline real &operator[](const int index) { return m_grid.at(index); }
 #else
     inline real &operator()(const int i, const int j, const int k) { return m_grid[index(i,j,k)]; }
     inline real &operator[](const int index) { return m_grid[index]; }

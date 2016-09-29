@@ -107,9 +107,6 @@ void ForwardEuler::doTick(std::shared_ptr<System> systemPtr, real dt)
         cout << "Fluxes: " << fluxX0 << " and " << fluxX1 << endl;
     }
 
-    for(auto modifierPtr : m_modifiers) {
-        Modifier &modifier = *modifierPtr;
-        modifier.apply(next);
-    }
+    applyModifiers(next);
     swap(current.grid(), next.grid());
 }

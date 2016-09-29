@@ -3,7 +3,7 @@ CONFIG += console c++14
 CONFIG -= app_bundle
 CONFIG -= qt
 QMAKE_CXXFLAGS += -g
-#DEFINES += DEBUG
+DEFINES += DEBUG
 SOURCES += main.cpp \
     grid.cpp \
     geometry.cpp \
