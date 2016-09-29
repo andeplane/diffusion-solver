@@ -6,9 +6,9 @@
 #include <cmath>
 typedef double real;
 
-static real K_tabulated[20];
-static real K_inv_tabulated[20];
-static real D_tabulated[20];
+static real K_tabulated[51]; // 51 because boundary conditions should be bulk which has diffusion coefficient pretty close to 50 nm pore.
+static real K_inv_tabulated[51];
+static real D_tabulated[51];
 static bool filled = false;
 
 inline real K(int poreSize) { // Units: 1 / (nm^3*bar)
@@ -25,6 +25,15 @@ inline real DSelf(int poreSize) {
     real D3 = -0.003727;
     real D4 = 0.0303;
     return (D1*(poreSize)*(poreSize)*(poreSize)+D2*(poreSize)*(poreSize)+D3*(poreSize)+D4); //[nm2/ps]
+}
+
+inline void createTables() {
+    for(int i=0; i<51; i++) {
+        K_tabulated[i] = K(i);
+        K_inv_tabulated[i] = 1.0 / K_tabulated[i];
+        D_tabulated[i] = DSelf(i);
+    }
+    filled = true;
 }
 
 inline real fugacity(real concentration, int poreSize) {

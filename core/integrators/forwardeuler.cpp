@@ -13,12 +13,7 @@ ForwardEuler::ForwardEuler() : Integrator()
 void ForwardEuler::tick(std::shared_ptr<System> systemPtr, real dt)
 {
     if(!filled) {
-        for(int i=0; i<20; i++) {
-            K_tabulated[i] = K(i);
-            K_inv_tabulated[i] = 1.0 / K_tabulated[i];
-            D_tabulated[i] = DSelf(i);
-        }
-        filled = true;
+        createTables();
     }
     System &system = *systemPtr;
     Grid &current = *system.grid();
