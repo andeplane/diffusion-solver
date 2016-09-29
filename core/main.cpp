@@ -12,9 +12,9 @@ using namespace std;
 
 int main(int , char **)
 {
-    //auto gridPtr = Geometry::initialWallX(32, 32, 32, 19, 1.0, 0.0);
+    auto gridPtr = Geometry::initialWallX(32, 32, 32, 19, 1.0, 0.0);
     cout << "Initializing grid " << endl;
-    auto gridPtr = Geometry::initialWallX(500, 500, 500, 19, 1.0, 0.0);
+    // auto gridPtr = Geometry::initialWallX(500, 500, 500, 19, 1.0, 0.0);
     Grid &grid = *gridPtr;
     cout << "Doing stuff with grid " << endl;
     grid.iterate([&](real &, short &poreSize, int i, int , int ) {
@@ -44,7 +44,7 @@ int main(int , char **)
         if(i % printEvery == 0) {
             char filename[1000];
             sprintf(filename, "/projects/poregenerator/vtk/data%d.vtk", printCounter++);
-            // grid.writeVTK(string(filename));
+            grid.writeVTK(string(filename));
         }
         integrator.tick(make_shared<System>(system), dt);
     }

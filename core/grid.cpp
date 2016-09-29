@@ -65,25 +65,23 @@ void Grid::writeVTK(string filename)
 
     int numVoxels = m_nx*m_ny*m_nz;
 
-    file << "# vtk DataFile Version 2.0" << endl;
-    file << "structured point" << endl;
-    file << "ASCII" << endl;
-    file << endl;
-    file << "DATASET STRUCTURED_POINTS" << endl;
-    file << "DIMENSIONS " << m_nx << " " << m_ny << " " << m_nz << endl;
-    file << "ORIGIN 0.0 0.0 0.0" << endl;
-    file << "SPACING " << 1.0/double(m_nx) << " " << 1.0/double(m_ny) << " " << 1.0/double(m_nz) << endl;
-    file << "POINT_DATA " << numVoxels << endl;
-    file << "SCALARS atomdist double" << endl;
-    file << "LOOKUP_TABLE default" << endl;
-    file << endl;
+    file << "# vtk DataFile Version 2.0\n";
+    file << "structured point\n";
+    file << "ASCII\n\n";
+    file << "DATASET STRUCTURED_POINTS\n";
+    file << "DIMENSIONS " << m_nx << " " << m_ny << " " << m_nz << "\n";
+    file << "ORIGIN 0.0 0.0 0.0\n";
+    file << "SPACING " << 1.0/double(m_nx) << " " << 1.0/double(m_ny) << " " << 1.0/double(m_nz) << "\n";
+    file << "POINT_DATA " << numVoxels << "\n";
+    file << "SCALARS atomdist double" << "\n";
+    file << "LOOKUP_TABLE default" << "\n\n";
 
     // column-major ordering...
     for (int k = 0; k < m_nz; k++) {
         for (int j = 0; j < m_ny; j++) {
             for (int i = 0; i < m_nx; i++) {
                 const real &value = m_grid[index(i,j,k)];
-                file << value << endl;
+                file << value << "\n";
             }
         }
     }

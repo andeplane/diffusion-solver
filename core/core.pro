@@ -11,7 +11,8 @@ SOURCES += main.cpp \
     integrators/forwardeuler.cpp \
     modifiers/modifier.cpp \
     system.cpp \
-    modifiers/fixedboundaryvalue.cpp
+    modifiers/fixedboundaryvalue.cpp \
+    common.cpp
 
 HEADERS += \
     common.h \
