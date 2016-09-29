@@ -11,12 +11,18 @@ FixedBoundaryValue::FixedBoundaryValue(real value1, real value2) : Modifier(),
 
 void FixedBoundaryValue::apply(Grid &grid)
 {
+    createTables(); // TODO: get rid of this crazy static hell
     for(int i=0; i<grid.ny(); i++) {
         for(int j=0; j<grid.nz(); j++) {
             int cj = i;
             int ck = j;
-            grid(0, cj, ck) = m_value1;
-            grid(grid.nx()-1, cj, ck) = m_value2;
+            int index = grid.index(0, cj, ck);
+            int poreSize = grid.poreSize(index);
+            grid[index] = concentration(m_value1, poreSize);
+
+            index = grid.index(grid.nx()-1, cj, ck);
+            poreSize = grid.poreSize(index);
+            grid[index] = concentration(m_value2, poreSize);
         }
     }
 }

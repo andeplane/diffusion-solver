@@ -68,12 +68,12 @@ void ForwardEuler::doTick(std::shared_ptr<System> systemPtr, real dt)
 
                         const real deltaFugacity = fugacityB - fugacityA;
 
-                        const real DA = D_tabulated[poreSizeA] * K_tabulated[poreSizeA];
+                        const real DA = D_tabulated[poreSizeA] * K_tabulated[poreSizeA]; // units [m^2/s * s^2/(m^2 kg)] = [s/kg]
                         const real DB = D_tabulated[poreSizeB] * K_tabulated[poreSizeB];
 
-                        const real DAB= 2.0*DA*DB/(DA+DB); //L-cell size // m^2 / s
-                        const real JAB=DAB*deltaFugacity*oneOverDr; // m^2/s*bar/r
-                        const real deltaConcentration=dt*JAB*oneOverDr;
+                        const real DAB= 2.0*DA*DB/(DA+DB);
+                        const real JAB=DAB*deltaFugacity*oneOverDr; // units [s/kg * kg/(m s^2) * 1/m] = [1/(m^2 s)]
+                        const real deltaConcentration=dt*JAB*oneOverDr; // units [s * 1/(m^2 s) * 1/m] = [1/m^3]
 #ifdef DEBUG
                         if(next(i,j,k)+deltaConcentration<0) {
                             cout << "Working with (" << i << "," << j << "," << k << ") and (" << i+di << "," << j+dj << "," << k+dk << ")" << endl;
@@ -92,9 +92,9 @@ void ForwardEuler::doTick(std::shared_ptr<System> systemPtr, real dt)
                         // TODO: use "newton's third law" here
                         if(COMPUTEFLUX) {
                             if(i==1 && di==-1) {
-                                fluxX0 += deltaConcentration;
+                                fluxX0 += JAB;
                             } if(i==current.nx()-2 && di==1) {
-                                fluxX1 += deltaConcentration;
+                                fluxX1 += JAB;
                             }
                         }
                     }
@@ -104,6 +104,8 @@ void ForwardEuler::doTick(std::shared_ptr<System> systemPtr, real dt)
     }
 
     if(COMPUTEFLUX) {
+        fluxX0 /= (current.ny() * current.nz());
+        fluxX1 /= (current.ny() * current.nz());
         cout << "Fluxes: " << fluxX0 << " and " << fluxX1 << endl;
     }
 
