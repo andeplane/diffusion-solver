@@ -14,7 +14,7 @@ namespace Geometry {
             real factor = float(i) / (grid.nx()-1);
             value = factor * value2 + (1 - factor) * value1;
             cellPoreSize = poreSize;
-            value = fugacity(value, cellPoreSize);
+            value = concentration(value, cellPoreSize);
         });
 
         return gridPtr;
@@ -32,6 +32,28 @@ namespace Geometry {
                 value = value2;
             }
             cellPoreSize = poreSize;
+            value = concentration(value, cellPoreSize);
+        });
+
+        return gridPtr;
+    }
+
+    shared_ptr<Grid> cubeGridX(int nx, int ny, int nz, int poreSize1, int poreSize2, real value1, real value2)
+    {
+        createTables();
+
+        auto gridPtr = make_shared<Grid>( Grid(nx, ny, nz) );
+        Grid &grid = *gridPtr;
+        grid.iterate([&](real &value, short &cellPoreSize, int i, int j, int k) {
+            real factor = float(i) / (grid.nx()-1);
+            // value = factor * value2 + (1 - factor) * value1;
+            value = 0;
+
+            if(i%5==0 || j%5==0 || k%5==0) {
+                cellPoreSize = poreSize1;
+            } else {
+                cellPoreSize = poreSize2;
+            }
             value = concentration(value, cellPoreSize);
         });
 

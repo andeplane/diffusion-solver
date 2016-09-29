@@ -23,6 +23,7 @@ public:
 #endif
     void iterate(std::function<void (real &, short &, int, int, int)> action);
     void writeVTK(std::string filename);
+    void writeGeometryVTK(std::string filename);
     void writeCSV(std::string filename);
     std::vector<real> &grid();
     std::vector<short> &poreSizes();
