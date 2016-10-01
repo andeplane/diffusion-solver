@@ -44,15 +44,27 @@ namespace Geometry {
 
         auto gridPtr = make_shared<Grid>( Grid(nx, ny, nz) );
         Grid &grid = *gridPtr;
+
+        vector<bool> wallsX(grid.nx(),false);
+        vector<bool> wallsY(grid.nx(),false);
+        vector<bool> wallsZ(grid.nx(),false);
+
+        for(int i=0; i<grid.nx(); i++) {
+            double rnd = rand() / double(RAND_MAX);
+            wallsX[i] = rnd < 0.1;
+            wallsY[i] = rnd < 0.1;
+            wallsZ[i] = rnd < 0.1;
+        }
+
         grid.iterate([&](real &value, short &cellPoreSize, int i, int j, int k) {
             real factor = float(i) / (grid.nx()-1);
-            // value = factor * value2 + (1 - factor) * value1;
-            value = 0;
+            value = factor * value2 + (1 - factor) * value1;
+            // value = 0;
 
-            if(i%5==0 || j%5==0 || k%5==0) {
+            if(wallsX[i] || wallsY[j] || wallsZ[k]) {
                 cellPoreSize = poreSize1;
             } else {
-                cellPoreSize = poreSize2;
+                cellPoreSize = rand() % 18 + 1;
             }
             value = concentration(value, cellPoreSize);
         });

@@ -44,9 +44,16 @@ void ForwardEuler::doTick(std::shared_ptr<System> systemPtr, real dt)
 
     real dr = system.lx(); // TODO: don't assume equal length in all dimensions
     real oneOverDr = 1.0 / dr;
-    for(int i=0; i<current.nx(); i++) {
-        for(int j=0; j<current.ny(); j++) {
-            for(int k=0; k<current.nz(); k++) {
+#pragma omp parallel shared(next, current) num_threads(m_numThreads)
+{
+    const int NX = current.nx();
+    const int NY = current.ny();
+    const int NZ = current.nz();
+
+#pragma omp for
+    for(int i=0; i<NX; i++) {
+        for(int j=0; j<NY; j++) {
+            for(int k=0; k<NZ; k++) {
                 // Loop through the 3 dimensions and the nearest neighbor in each
                 // 14 flops?
                 // N^3 * 6 * 14 = 10500000000 = 1e10 (N=500)
@@ -92,8 +99,10 @@ void ForwardEuler::doTick(std::shared_ptr<System> systemPtr, real dt)
                         // TODO: use "newton's third law" here
                         if(COMPUTEFLUX) {
                             if(i==1 && di==-1) {
+                                #pragma omp atomic
                                 fluxX0 += JAB;
                             } if(i==current.nx()-2 && di==1) {
+                                #pragma omp atomic
                                 fluxX1 += JAB;
                             }
                         }
@@ -102,6 +111,7 @@ void ForwardEuler::doTick(std::shared_ptr<System> systemPtr, real dt)
             }
         }
     }
+}
 
     if(COMPUTEFLUX) {
         fluxX0 /= (current.ny() * current.nz());

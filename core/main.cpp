@@ -1,7 +1,7 @@
 #include <iostream>
 #include <functional>
 #include <ctime>
-
+#include <omp.h>
 #include "integrators/forwardeuler.h"
 #include "modifiers/fixedboundaryvalue.h"
 #include "geometry.h"
@@ -10,14 +10,19 @@
 
 using namespace std;
 
-int main(int , char **)
+int main(int numArgs, char **arguments)
 {
+    int numThreads = 1;
+    if(numArgs > 1) {
+        numThreads = atoi(arguments[1]);
+    }
+
     createTables();
-    int N = 32;
+    int N = 128;
     int poreSize = 19;
     // auto gridPtr = Geometry::initialWallX(N, N, N, poreSize, 1.0, 0.0);
     // auto gridPtr = Geometry::linearGridX(N, N, N, poreSize, 1.0, 0.0);
-    auto gridPtr = Geometry::cubeGridX(N, N, N, 2, 19, 1.0, 0.0);
+    auto gridPtr = Geometry::cubeGridX(N, N, N, 1, 19, 1.0, 0.0);
     cout << "Initializing grid " << endl;
     Grid &grid = *gridPtr;
 
@@ -44,27 +49,27 @@ int main(int , char **)
     });
     system.setLength(1.0, 1.0, 1.0);
     ForwardEuler integrator;
+    integrator.setNumThreads(numThreads);
     integrator.addModifier(boundaryCondition);
     integrator.applyModifiers(grid);
-    clock_t begin = clock();
+    double startTime = omp_get_wtime();
     int printEvery = 10;
     int printCounter = 0;
 
-    int timesteps = 2000;
+    int timesteps = 100;
     for(int i=0; i<timesteps; i++) {
         if(i % printEvery == 0) {
             double percentage = double(i) / timesteps * 100;
 
-            clock_t end = clock();
-            double elapsedSecs = double(end - begin) / CLOCKS_PER_SEC;
+            double endTime = omp_get_wtime();
+            double elapsedSecs = endTime-startTime;
             double estimatedTotalTime = elapsedSecs / (i+1) * timesteps;
             double estimatedTotalTimeLeft = estimatedTotalTime - elapsedSecs;
-
             cout << "Step " << i << " / " << timesteps << " (" << percentage << "\%). Estimated time left: " << estimatedTotalTimeLeft << " seconds." << endl;
             char filename[1000];
             sprintf(filename, "/projects/poregenerator/vtk/data%d.vtk", printCounter++);
-            grid.writeVTK(string(filename));
-            integrator.computeFlux = true;
+            // grid.writeVTK(string(filename));
+            // integrator.computeFlux = true;
             integrator.tick(make_shared<System>(system), dt);
         } else {
             integrator.computeFlux = false;
@@ -73,9 +78,9 @@ int main(int , char **)
     }
 
     grid.writeGeometryVTK("/projects/poregenerator/vtk/geometry.vtk");
-    clock_t end = clock();
-    double elapsedSecs = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "Simulation finished using " << 1000*elapsedSecs << " ms." << endl;
+    double endTime = omp_get_wtime();
+    double elapsedSecs = endTime-startTime;
+    cout << "Simulation finished using " << elapsedSecs << " seconds." << endl;
 
     return 0;
 }

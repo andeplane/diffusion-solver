@@ -4,7 +4,7 @@
 #include "../system.h"
 #include <iostream>
 using namespace std;
-Integrator::Integrator()
+Integrator::Integrator() : m_numThreads(1)
 {
 
 }
@@ -20,4 +20,14 @@ void Integrator::applyModifiers(Grid &grid)
         Modifier &modifier = *modifierPtr;
         modifier.apply(grid);
     }
+}
+
+int Integrator::numThreads() const
+{
+    return m_numThreads;
+}
+
+void Integrator::setNumThreads(int numThreads)
+{
+    m_numThreads = numThreads;
 }

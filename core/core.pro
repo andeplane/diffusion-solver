@@ -2,7 +2,9 @@ TEMPLATE = app
 CONFIG += console c++14
 CONFIG -= app_bundle
 CONFIG -= qt
-QMAKE_CXXFLAGS += -g
+QMAKE_CXXFLAGS += -fopenmp
+QMAKE_LFLAGS += -fopenmp
+
 #DEFINES += DEBUG
 SOURCES += main.cpp \
     grid.cpp \
