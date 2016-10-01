@@ -37,31 +37,33 @@ void ForwardEuler::doTick(std::shared_ptr<System> systemPtr, real dt)
 
     real fluxX0 = 0;
     real fluxX1 = 0;
-//    real fluxY0 = 0;
-//    real fluxY1 = 0;
-//    real fluxZ0 = 0;
-//    real fluxZ1 = 0;
+    //    real fluxY0 = 0;
+    //    real fluxY1 = 0;
+    //    real fluxZ0 = 0;
+    //    real fluxZ1 = 0;
 
     real dr = system.lx(); // TODO: don't assume equal length in all dimensions
     real oneOverDr = 1.0 / dr;
-#pragma omp parallel shared(next, current) num_threads(m_numThreads)
-{
-    const int NX = current.nx();
-    const int NY = current.ny();
-    const int NZ = current.nz();
+    // #pragma omp parallel shared(next, current) num_threads(m_numThreads)
+    {
+        const int NX = current.nx();
+        const int NY = current.ny();
+        const int NZ = current.nz();
 
-#pragma omp for
-    for(int i=0; i<NX; i++) {
-        for(int j=0; j<NY; j++) {
-            for(int k=0; k<NZ; k++) {
-                // Loop through the 3 dimensions and the nearest neighbor in each
-                // 14 flops?
-                // N^3 * 6 * 14 = 10500000000 = 1e10 (N=500)
-                for(int lowerDimension=-1; lowerDimension<=1; lowerDimension+=2) {
-                    for(int a=0; a<3; a++) {
-                        const int di = a==0 ? lowerDimension : 0;
-                        const int dj = a==1 ? lowerDimension : 0;
-                        const int dk = a==2 ? lowerDimension : 0;
+        // #pragma omp for
+        for(int i=0; i<NX; i++) {
+            for(int j=0; j<NY; j++) {
+                for(int k=0; k<NZ; k++) {
+                    // Loop through the 3 dimensions and the nearest neighbor in each
+                    // 14 flops?
+                    // N^3 * 6 * 14 = 10500000000 = 1e10 (N=500)
+                    int deltaIs[] = {-1, 1, 0, 0, 0, 0};
+                    int deltaJs[] = {0, 0, -1, 1, 0, 0};
+                    int deltaKs[] = {0, 0, 0, 0, -1, 1};
+                    for(int a = 0; a<6; a++) {
+                        const int di = deltaIs[a];
+                        const int dj = deltaJs[a];
+                        const int dk = deltaKs[a];
                         const int indexA = current.index(i,j,k);
                         const int indexB = current.indexPeriodic(i+di,j+dj,k+dk);
                         const short poreSizeA = current.poreSize(indexA);
@@ -99,10 +101,10 @@ void ForwardEuler::doTick(std::shared_ptr<System> systemPtr, real dt)
                         // TODO: use "newton's third law" here
                         if(COMPUTEFLUX) {
                             if(i==1 && di==-1) {
-                                #pragma omp atomic
+#pragma omp atomic
                                 fluxX0 += JAB;
                             } if(i==current.nx()-2 && di==1) {
-                                #pragma omp atomic
+#pragma omp atomic
                                 fluxX1 += JAB;
                             }
                         }
@@ -111,7 +113,6 @@ void ForwardEuler::doTick(std::shared_ptr<System> systemPtr, real dt)
             }
         }
     }
-}
 
     if(COMPUTEFLUX) {
         fluxX0 /= (current.ny() * current.nz());
