@@ -13,17 +13,25 @@ using namespace std;
 int main(int numArgs, char **arguments)
 {
     int numThreads = 1;
-    if(numArgs > 1) {
-        numThreads = atoi(arguments[1]);
+    if(numArgs == 1) {
+        cout << "Error, you need to provide geometry file" << endl;
+        exit(1);
+    }
+
+    string planeGeometryFile = arguments[1];
+
+    if(numArgs > 2) {
+        numThreads = atoi(arguments[2]);
     }
 
     createTables();
-    int N = 32;
+    int N = 128;
     int poreSize = 19;
     // auto gridPtr = Geometry::initialWallX(N, N, N, poreSize, 1.0, 0.0);
     // auto gridPtr = Geometry::linearGridX(N, N, N, poreSize, 1.0, 0.0);
     // auto gridPtr = Geometry::cubeGridX(N, N, N, 1, 19, 1.0, 0.0, false);
-    string planeGeometryFile = "/Users/anderhaf/Dropbox/uio/phd/2016/zeolite/3dmodel/data_SPPA_20/SPPA_N=20_xMin=1.5_xMax=19.5_T=1.0_19/geometry.txt";
+
+    // string planeGeometryFile = "/Users/anderhaf/Dropbox/uio/phd/2016/zeolite/3dmodel/data_SPPA_20/SPPA_N=20_xMin=1.5_xMax=19.5_T=1.0_19/geometry.txt";
     // string planeGeometryFile = "/projects/geometry.txt";
     auto gridPtr = Geometry::planeGeometryGrid(N, N, N, planeGeometryFile, 1, 0, true);
     // auto gridPtr = Geometry::linearGridX(N, N, N, poreSize, 1.0, 0.0);
@@ -33,7 +41,7 @@ int main(int numArgs, char **arguments)
     Grid &grid = *gridPtr;
 
     real dx = 1;
-    real dt = dx*dx / 2.0;
+    real dt = dx*dx / 3.0;
     real L = dx*N;
 
     auto systemPtr = make_shared<System>();
@@ -58,12 +66,12 @@ int main(int numArgs, char **arguments)
     integrator.addModifier(boundaryCondition);
     integrator.applyModifiers(grid);
     double startTime = omp_get_wtime();
-    int printEvery = 100;
+    int printEvery = 1000;
     int printCounter = 0;
     bool writeVTK = true;
 
     grid.writeGeometryVTK("/projects/poregenerator/vtk/geometry.vtk");
-    int timesteps = 10000;
+    int timesteps = 100000;
     for(int i=0; i<timesteps; i++) {
         if(i % printEvery == 0) {
             if(writeVTK) {

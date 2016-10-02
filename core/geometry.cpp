@@ -111,6 +111,10 @@ namespace Geometry {
         auto gridPtr = make_shared<Grid>( Grid(nx, ny, nz) );
         Grid &grid = *gridPtr;
         ifstream file(filename.c_str());
+        if(!file.is_open()) {
+            cout << "Error opening file " << filename << endl;
+            terminate();
+        }
         vector<double> planesX;
         vector<double> planesY;
         vector<double> planesZ;
