@@ -25,9 +25,9 @@ int main(int numArgs, char **arguments)
     // auto gridPtr = Geometry::cubeGridX(N, N, N, 1, 19, 1.0, 0.0, false);
     string planeGeometryFile = "/Users/anderhaf/Dropbox/uio/phd/2016/zeolite/3dmodel/data_SPPA_20/SPPA_N=20_xMin=1.5_xMax=19.5_T=1.0_19/geometry.txt";
     // string planeGeometryFile = "/projects/geometry.txt";
-    // auto gridPtr = Geometry::planeGeometryGrid(N, N, N, planeGeometryFile, 1, 0, true);
+    auto gridPtr = Geometry::planeGeometryGrid(N, N, N, planeGeometryFile, 1, 0, true);
     // auto gridPtr = Geometry::linearGridX(N, N, N, poreSize, 1.0, 0.0);
-    auto gridPtr = Geometry::initialWallX(N, N, N, poreSize, 1.0, 0.0);
+    // auto gridPtr = Geometry::initialWallX(N, N, N, poreSize, 1.0, 0.0);
 
     cout << "Initializing grid " << endl;
     Grid &grid = *gridPtr;
@@ -36,7 +36,8 @@ int main(int numArgs, char **arguments)
     real dt = dx*dx / 2.0;
     real L = dx*N;
 
-    System system;
+    auto systemPtr = make_shared<System>();
+    System &system = *systemPtr;
     system.setGrid(gridPtr);
     system.setLength(L, L, L);
 
@@ -65,14 +66,6 @@ int main(int numArgs, char **arguments)
     int timesteps = 10000;
     for(int i=0; i<timesteps; i++) {
         if(i % printEvery == 0) {
-            double percentage = double(i) / timesteps * 100;
-
-            double endTime = omp_get_wtime();
-            double elapsedSecs = endTime-startTime;
-            double estimatedTotalTime = elapsedSecs / (i+1) * timesteps;
-            double estimatedTotalTimeLeft = estimatedTotalTime - elapsedSecs;
-            cout << "Step " << i << " / " << timesteps << " (" << percentage << "\%). Estimated time left: " << estimatedTotalTimeLeft << " seconds." << endl;
-
             if(writeVTK) {
                 char filename[1000];
                 sprintf(filename, "/projects/poregenerator/vtk/concentration%d.vtk", printCounter);
@@ -82,7 +75,14 @@ int main(int numArgs, char **arguments)
             }
 
             integrator.computeFlux = true;
-            integrator.tick(make_shared<System>(system), dt);
+            integrator.tick(systemPtr, dt);
+
+            double percentage = double(i) / timesteps * 100;
+            double endTime = omp_get_wtime();
+            double elapsedSecs = endTime-startTime;
+            double estimatedTotalTime = elapsedSecs / (i+1) * timesteps;
+            double estimatedTotalTimeLeft = estimatedTotalTime - elapsedSecs;
+            cout << "Step " << i << " / " << timesteps << " (" << percentage << "\%). Fluxes: " << system.fluxX0() << " and " << system.fluxX1() << " (ratio " << (-system.fluxX0()/system.fluxX1()) << "). Estimated time left: " << estimatedTotalTimeLeft << " seconds." << endl;
         } else {
             integrator.computeFlux = false;
             integrator.tick(make_shared<System>(system), dt);

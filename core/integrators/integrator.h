@@ -13,7 +13,6 @@ public:
     void applyModifiers(class Grid &grid);
     int numThreads() const;
     void setNumThreads(int numThreads);
-
 protected:
     std::vector<std::shared_ptr<class Modifier>> m_modifiers;
      int m_numThreads;

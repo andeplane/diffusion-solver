@@ -15,9 +15,18 @@ public:
     real lx() { return m_length[0]; }
     real ly() { return m_length[1]; }
     real lz() { return m_length[2]; }
+
+    real fluxX0() const;
+    void setFluxX0(const real &fluxX0);
+
+    real fluxX1() const;
+    void setFluxX1(const real &fluxX1);
+
 private:
     std::shared_ptr<class Grid> m_grid;
     real m_length[3];
+    real m_fluxX0;
+    real m_fluxX1;
 };
 
 #endif // SYSTEM_H
