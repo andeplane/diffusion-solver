@@ -22,16 +22,23 @@ public:
     inline real &operator[](const int index) { return m_grid[index]; }
 #endif
     void iterate(std::function<void (real &, short &, int, int, int)> action);
-    void writeVTK(std::string filename);
+    void writeConcentrationVTK(std::string filename);
     void writeGeometryVTK(std::string filename);
     void writeCSV(std::string filename);
     std::vector<real> &grid();
     std::vector<short> &poreSizes();
-    short poreSize(int index) { return m_poreSizes[index]; }
+    std::vector<bool> &isWall() { return m_isWall; }
+    // bool &isWall(int index) { return m_isWall[index]; }
+    // bool &isWall(int i, int j, int k) { return m_isWall[ index(i,j,k) ]; }
 
+    short &poreSize(int index) { return m_poreSizes[index]; }
+    short &poreSize(int i, int j, int k) { return m_poreSizes[index(i,j,k)]; }
+
+    void writeFugacityVTK(string filename);
 private:
     std::vector<real>  m_grid;
     std::vector<short> m_poreSizes;
+    std::vector<bool>  m_isWall;
     int m_nx;
     int m_ny;
     int m_nz;

@@ -2,10 +2,10 @@ TEMPLATE = app
 CONFIG += console c++14
 CONFIG -= app_bundle
 CONFIG -= qt
-QMAKE_CXXFLAGS += -fopenmp
+QMAKE_CXXFLAGS += -g -fopenmp -ftree-vectorizer-verbose=5 -ftree-vectorize
 QMAKE_LFLAGS += -fopenmp
 
-#DEFINES += DEBUG
+DEFINES += DEBUG
 SOURCES += main.cpp \
     grid.cpp \
     geometry.cpp \
