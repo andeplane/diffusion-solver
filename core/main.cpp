@@ -13,19 +13,21 @@ using namespace std;
 int main(int numArgs, char **arguments)
 {
     int numThreads = 1;
-    if(numArgs == 1) {
+    if(numArgs < 2) {
         cout << "Error, you need to provide geometry file" << endl;
         exit(1);
     }
 
     string planeGeometryFile = arguments[1];
-
+    int N = 64;
+    if(numArgs > 2) {
+        N = atoi(arguments[2]);
+    }
     if(numArgs > 3) {
         numThreads = atoi(arguments[3]);
     }
 
     createTables();
-    int N = 128;
     int poreSize = 19;
     // auto gridPtr = Geometry::initialWallX(N, N, N, poreSize, 1.0, 0.0);
     // auto gridPtr = Geometry::linearGridX(N, N, N, poreSize, 1.0, 0.0);
