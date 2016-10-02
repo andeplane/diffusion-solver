@@ -33,15 +33,15 @@ int main(int numArgs, char **arguments)
     Grid &grid = *gridPtr;
 
     real dx = 1;
-    real dt = dx*dx * 10;
-    real L = dx*(N-1);
+    real dt = dx*dx / 2.0;
+    real L = dx*N;
 
     System system;
     system.setGrid(gridPtr);
     system.setLength(L, L, L);
 
     real deltaC = (concentration(1.0, poreSize) - concentration(0.0, poreSize));
-    real gradC = deltaC / L;
+    real gradC = deltaC / (dx * (N - 1));
     real D = DSelf(poreSize);
     cout << "Theoretical flux = " << D * gradC << endl;
 

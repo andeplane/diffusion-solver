@@ -42,7 +42,7 @@ void ForwardEuler::doTick(std::shared_ptr<System> systemPtr, real dt)
     //    real fluxZ0 = 0;
     //    real fluxZ1 = 0;
 
-    real dr = system.lx(); // TODO: don't assume equal length in all dimensions
+    real dr = current.nx() / system.lx(); // TODO: don't assume equal length in all dimensions
     real oneOverDr = 1.0 / dr;
     {
         const int NX = current.nx();
