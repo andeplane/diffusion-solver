@@ -20,8 +20,8 @@ int main(int numArgs, char **arguments)
 
     string planeGeometryFile = arguments[1];
 
-    if(numArgs > 2) {
-        numThreads = atoi(arguments[2]);
+    if(numArgs > 3) {
+        numThreads = atoi(arguments[3]);
     }
 
     createTables();
@@ -70,15 +70,15 @@ int main(int numArgs, char **arguments)
     int printCounter = 0;
     bool writeVTK = true;
 
-    grid.writeGeometryVTK("/projects/poregenerator/vtk/geometry.vtk");
+    grid.writeGeometryVTK("geometry.vtk");
     int timesteps = 100000;
     for(int i=0; i<timesteps; i++) {
         if(i % printEvery == 0) {
             if(writeVTK) {
                 char filename[1000];
-                sprintf(filename, "/projects/poregenerator/vtk/concentration%d.vtk", printCounter);
+                sprintf(filename, "concentration%d.vtk", printCounter);
                 grid.writeConcentrationVTK(string(filename));
-                sprintf(filename, "/projects/poregenerator/vtk/fugacity%d.vtk", printCounter++);
+                sprintf(filename, "fugacity%d.vtk", printCounter++);
                 grid.writeFugacityVTK(string(filename));
             }
 
@@ -96,7 +96,7 @@ int main(int numArgs, char **arguments)
             integrator.tick(make_shared<System>(system), dt);
         }
     }
-    grid.writeConcentrationVTK(string("/projects/poregenerator/vtk/final.vtk"));
+    grid.writeConcentrationVTK(string("final.vtk"));
 
     double endTime = omp_get_wtime();
     double elapsedSecs = endTime-startTime;
