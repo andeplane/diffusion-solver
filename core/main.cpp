@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <functional>
 #include <ctime>
 #include <omp.h>
@@ -35,7 +36,7 @@ int main(int numArgs, char **arguments)
 
     // string planeGeometryFile = "/Users/anderhaf/Dropbox/uio/phd/2016/zeolite/3dmodel/data_SPPA_20/SPPA_N=20_xMin=1.5_xMax=19.5_T=1.0_19/geometry.txt";
     // string planeGeometryFile = "/projects/geometry.txt";
-    auto gridPtr = Geometry::planeGeometryGrid(N, N, N, planeGeometryFile, 1, 0, true);
+    auto gridPtr = Geometry::planeGeometryGrid(N, N, N, planeGeometryFile, 1, 0.9, true);
     // auto gridPtr = Geometry::linearGridX(N, N, N, poreSize, 1.0, 0.0);
     // auto gridPtr = Geometry::initialWallX(N, N, N, poreSize, 1.0, 0.0);
 
@@ -56,7 +57,7 @@ int main(int numArgs, char **arguments)
     real D = DSelf(poreSize);
     cout << "Theoretical flux = " << D * gradC << endl;
 
-    auto boundaryCondition = make_shared<FixedBoundaryValue>( FixedBoundaryValue(1, 0) );
+    auto boundaryCondition = make_shared<FixedBoundaryValue>( FixedBoundaryValue(1, 0.9) );
     grid.iterate([&](real &, short &poreSize, int i, int , int ) {
         if(i == 0 || i == grid.nx()-1) {
             poreSize = 19;
@@ -68,37 +69,46 @@ int main(int numArgs, char **arguments)
     integrator.addModifier(boundaryCondition);
     integrator.applyModifiers(grid);
     double startTime = omp_get_wtime();
-    int printEvery = 1000;
+    int printEvery = 100;
+    int saveEvery = 100000;
     int printCounter = 0;
     bool writeVTK = true;
-
+    ofstream log("log.txt");
     grid.writeGeometryVTK("geometry.vtk");
-    int timesteps = 100000;
+    grid.writePoresVTK("pores.vtk");
+    int timesteps = 1000000;
     for(int i=0; i<timesteps; i++) {
         if(i % printEvery == 0) {
-            if(writeVTK) {
-                char filename[1000];
-                sprintf(filename, "concentration%d.vtk", printCounter);
-                grid.writeConcentrationVTK(string(filename));
-                sprintf(filename, "fugacity%d.vtk", printCounter++);
-                grid.writeFugacityVTK(string(filename));
-            }
-
             integrator.computeFlux = true;
             integrator.tick(systemPtr, dt);
 
-            double percentage = double(i) / timesteps * 100;
-            double endTime = omp_get_wtime();
-            double elapsedSecs = endTime-startTime;
+            double percentage = double(i) / timesteps * 100; // How far are we in the simulation?
+            double endTime = omp_get_wtime(); // Current time
+            double elapsedSecs = endTime-startTime; // Total elapsed time
             double estimatedTotalTime = elapsedSecs / (i+1) * timesteps;
             double estimatedTotalTimeLeft = estimatedTotalTime - elapsedSecs;
-            cout << "Step " << i << " / " << timesteps << " (" << percentage << "\%). Fluxes: " << system.fluxX0() << " and " << system.fluxX1() << " (ratio " << (-system.fluxX0()/system.fluxX1()) << "). Estimated time left: " << estimatedTotalTimeLeft << " seconds." << endl;
+            double ratio = (-system.fluxX0()/system.fluxX1());
+
+            cout << "Step " << i << " / " << timesteps << " (" << percentage << "\%). Fluxes: " << system.fluxX0() << " and " << system.fluxX1() << " (ratio " << ratio << "). Estimated time left: " << estimatedTotalTimeLeft << " seconds." << endl;
+            log << "Step " << i << " / " << timesteps << " (" << percentage << "\%). Fluxes: " << system.fluxX0() << " and " << system.fluxX1() << " (ratio " << ratio << "). Estimated time left: " << estimatedTotalTimeLeft << " seconds." << endl;
+
+            if(i > timesteps*0.1 && fabs(ratio - 1.0) < 1e-5) { // Initially we might have the correct flux, so don't let the program stop
+                cout << "Simulation has reached equilibrium with ratio = " << ratio << ". Stopping simulation." << endl;
+                log << "Simulation has reached equilibrium with ratio = " << ratio << ". Stopping simulation." << endl;
+                break;
+            }
         } else {
             integrator.computeFlux = false;
             integrator.tick(make_shared<System>(system), dt);
         }
+
+        if(writeVTK && (i % saveEvery==0) ) {
+            char filename[1000];
+            sprintf(filename, "concentration%d.vtk", printCounter);
+            grid.writeConcentrationVTK(string(filename));
+        }
     }
-    grid.writeConcentrationVTK(string("final.vtk"));
+    grid.writeConcentrationVTK(string("concentration_final.vtk"));
 
     double endTime = omp_get_wtime();
     double elapsedSecs = endTime-startTime;

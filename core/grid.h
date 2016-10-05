@@ -35,6 +35,7 @@ public:
     short &poreSize(int i, int j, int k) { return m_poreSizes[index(i,j,k)]; }
 
     void writeFugacityVTK(string filename);
+    void writePoresVTK(string filename);
 private:
     std::vector<real>  m_grid;
     std::vector<short> m_poreSizes;
