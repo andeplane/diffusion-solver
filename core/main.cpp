@@ -19,7 +19,7 @@ int main(int numArgs, char **arguments)
         exit(1);
     }
 
-    string planeGeometryFile = arguments[1];
+    string fileName = arguments[1];
     int N = 64;
     if(numArgs > 2) {
         N = atoi(arguments[2]);
@@ -36,7 +36,8 @@ int main(int numArgs, char **arguments)
 
     // string planeGeometryFile = "/Users/anderhaf/Dropbox/uio/phd/2016/zeolite/3dmodel/data_SPPA_20/SPPA_N=20_xMin=1.5_xMax=19.5_T=1.0_19/geometry.txt";
     // string planeGeometryFile = "/projects/geometry.txt";
-    auto gridPtr = Geometry::planeGeometryGrid(N, N, N, planeGeometryFile, 1, 0.9, true);
+    // auto gridPtr = Geometry::planeGeometryGrid(N, N, N, planeGeometryFile, 1, 0.9, true);
+    auto gridPtr = Geometry::fromSpheres(N, 0.1, fileName, 0.0, 1.0, true);
     // auto gridPtr = Geometry::linearGridX(N, N, N, poreSize, 1.0, 0.0);
     // auto gridPtr = Geometry::initialWallX(N, N, N, poreSize, 1.0, 0.0);
 
@@ -76,6 +77,8 @@ int main(int numArgs, char **arguments)
     ofstream log("log.txt");
     grid.writeGeometryVTK("geometry.vtk");
     grid.writePoresVTK("pores.vtk");
+    grid.writeConcentrationVTK("concentration.vtk");
+    return 0; // TODO: REMOVE
     int timesteps = 1000000;
     for(int i=0; i<timesteps; i++) {
         if(i % printEvery == 0) {

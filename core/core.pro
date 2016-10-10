@@ -14,7 +14,8 @@ SOURCES += main.cpp \
     modifiers/modifier.cpp \
     system.cpp \
     modifiers/fixedboundaryvalue.cpp \
-    common.cpp
+    common.cpp \
+    vec3.cpp
 
 HEADERS += \
     common.h \
@@ -25,4 +26,5 @@ HEADERS += \
     modifiers/modifier.h \
     modifiers/modifiers.h \
     system.h \
-    modifiers/fixedboundaryvalue.h
+    modifiers/fixedboundaryvalue.h \
+    vec3.h
