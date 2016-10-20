@@ -1,1 +1,1 @@
-icpc -std=c++14 -I. -qopenmp -O3 -xHost *.cpp integrators/*.cpp modifiers/*.cpp -o diffusion
+icpc -xHost -single_module -dynamiclib -std=c++14 -I. -qopenmp -Ofast *.cpp integrators/*.cpp modifiers/*.cpp -o libcore.dylib
