@@ -1,8 +1,9 @@
-TEMPLATE = app
+TARGET = core
+TEMPLATE = lib
+
 CONFIG += console c++14
-CONFIG -= app_bundle
 CONFIG -= qt
-QMAKE_CXXFLAGS += -g -fopenmp -ftree-vectorizer-verbose=5 -ftree-vectorize
+QMAKE_CXXFLAGS += -g -fopenmp
 QMAKE_LFLAGS += -fopenmp
 
 DEFINES += DEBUG
@@ -28,3 +29,8 @@ HEADERS += \
     system.h \
     modifiers/fixedboundaryvalue.h \
     vec3.h
+
+unix {
+    target.path = /usr/lib
+    INSTALLS += target
+}
