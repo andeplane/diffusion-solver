@@ -11,16 +11,25 @@ ForwardEuler::ForwardEuler() : Integrator(),
 
 }
 
+void ForwardEuler::tick(System *system, real dt)
+{
+    if(computeFlux) {
+        doTick<1>(system, dt);
+    } else {
+        doTick<0>(system, dt);
+    }
+}
+
 void ForwardEuler::tick(std::shared_ptr<System> systemPtr, real dt) {
     if(computeFlux) {
-        doTick<1>(systemPtr, dt);
+        doTick<1>(systemPtr.get(), dt);
     } else {
-        doTick<0>(systemPtr, dt);
+        doTick<0>(systemPtr.get(), dt);
     }
 }
 
 template <int COMPUTEFLUX>
-void ForwardEuler::doTick(std::shared_ptr<System> systemPtr, real dt)
+void ForwardEuler::doTick(System *systemPtr, real dt)
 {
     if(!filled) {
         createTables();

@@ -9,6 +9,7 @@ class Integrator
 public:
     Integrator();
     virtual void tick(std::shared_ptr<class System>, real dt) = 0;
+    virtual void tick(class System* system, real dt) = 0;
     virtual void addModifier(std::shared_ptr<class Modifier> modifier);
     void applyModifiers(class Grid &grid);
     int numThreads() const;

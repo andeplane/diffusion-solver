@@ -39,4 +39,24 @@ extern "C" {
 
         integrator->addModifier(boundaryCondition);
     }
+
+    void writeConcentrationVTK(System *system, string filename) {
+        system->grid()->writeConcentrationVTK(filename);
+    }
+
+    void writeGeometryVTK(System *system, string filename) {
+        system->grid()->writeGeometryVTK(filename);
+    }
+
+    void writeFugacityVTK(System *system, string filename) {
+        system->grid()->writeFugacityVTK(filename);
+    }
+
+    void writePoresVTK(System *system, string filename) {
+        system->grid()->writePoresVTK(filename);
+    }
+
+    void tick(Integrator *integrator, System *system, real dt) {
+        integrator->tick(system, dt);
+    }
 }
