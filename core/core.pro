@@ -7,8 +7,7 @@ QMAKE_CXXFLAGS += -g -fopenmp
 QMAKE_LFLAGS += -fopenmp
 
 DEFINES += DEBUG
-SOURCES += main.cpp \
-    grid.cpp \
+SOURCES += grid.cpp \
     geometry.cpp \
     integrators/integrator.cpp \
     integrators/forwardeuler.cpp \
@@ -16,7 +15,8 @@ SOURCES += main.cpp \
     system.cpp \
     modifiers/fixedboundaryvalue.cpp \
     common.cpp \
-    vec3.cpp
+    vec3.cpp \
+    library.cpp
 
 HEADERS += \
     common.h \
@@ -28,7 +28,8 @@ HEADERS += \
     modifiers/modifiers.h \
     system.h \
     modifiers/fixedboundaryvalue.h \
-    vec3.h
+    vec3.h \
+    library.h
 
 unix {
     target.path = /usr/lib
