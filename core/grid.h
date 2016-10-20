@@ -21,7 +21,7 @@ public:
     inline real &operator()(const int i, const int j, const int k) { return m_grid[index(i,j,k)]; }
     inline real &operator[](const int index) { return m_grid[index]; }
 #endif
-    void iterate(std::function<void (real &, short &, int, int, int)> action);
+    void iterate(std::function<void (real &, short &, int, int, int, Grid &)> action);
     void writeConcentrationVTK(std::string filename);
     void writeGeometryVTK(std::string filename);
     void writeCSV(std::string filename);

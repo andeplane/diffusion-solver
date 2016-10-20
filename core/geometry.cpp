@@ -209,7 +209,7 @@ std::shared_ptr<Grid> fromSpheres(int N, double dr, string filename, real value1
             exit(1);
         }
         newPosition += 5;
-        newPosition *= 12;
+        newPosition *= 6;
         positions.push_back(newPosition);
         radii.push_back(0.25);
     }
@@ -249,8 +249,10 @@ std::shared_ptr<Grid> fromSpheres(int N, double dr, string filename, real value1
                     real dr2 = dx*dx + dy*dy + dz*dz;
                     if(dr2 >= radius*radius) continue;
 
-                    cout << "Setting wall for sphere " << particleIndex << " since radius = " << radius << " and dr = " << sqrt(dr2) << " (dr is really " << dr << ")" << endl;
+                    // cout << "Setting wall for sphere " << particleIndex << " since radius = " << radius << " and dr = " << sqrt(dr2) << " (dr is really " << dr << ")" << endl;
                     int i = ci + di;
+                    if(i<0 || i>= grid.nx()) continue;
+
                     int j = cj + dj;
                     int k = ck + dk;
                     int index = grid.indexPeriodic(i,j,k);
@@ -265,6 +267,9 @@ std::shared_ptr<Grid> fromSpheres(int N, double dr, string filename, real value1
                     if(!linear) value = 0;
 
                     value = concentration(value, cellPoreSize);
+                    if(value < 0) {
+                        cout << "Error, value below 0..." << endl;
+                    }
                 }
             }
         }

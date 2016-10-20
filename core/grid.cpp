@@ -10,12 +10,12 @@ Grid::Grid(int nx, int ny, int nz) :
 
 }
 
-void Grid::iterate(function<void (real &gridPoint, short &poreSize, int i, int j, int k)> action)
+void Grid::iterate(std::function<void(real &, short &, int, int, int, Grid &)> action)
 {
     for(int i=0; i<m_nx; i++) {
         for(int j=0; j<m_ny; j++) {
             for(int k=0; k<m_nz; k++) {
-                action(m_grid[index(i,j,k)], m_poreSizes[index(i,j,k)], i, j, k);
+                action(m_grid[index(i,j,k)], m_poreSizes[index(i,j,k)], i, j, k, *this);
             }
         }
     }

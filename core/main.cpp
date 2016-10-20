@@ -37,7 +37,7 @@ int main(int numArgs, char **arguments)
     // string planeGeometryFile = "/Users/anderhaf/Dropbox/uio/phd/2016/zeolite/3dmodel/data_SPPA_20/SPPA_N=20_xMin=1.5_xMax=19.5_T=1.0_19/geometry.txt";
     // string planeGeometryFile = "/projects/geometry.txt";
     // auto gridPtr = Geometry::planeGeometryGrid(N, N, N, planeGeometryFile, 1, 0.9, true);
-    auto gridPtr = Geometry::fromSpheres(N, 0.1, fileName, 0.0, 1.0, true);
+    auto gridPtr = Geometry::fromSpheres(N, 0.1, fileName, 0.0, 1.0, false);
     // auto gridPtr = Geometry::linearGridX(N, N, N, poreSize, 1.0, 0.0);
     // auto gridPtr = Geometry::initialWallX(N, N, N, poreSize, 1.0, 0.0);
 
@@ -45,7 +45,7 @@ int main(int numArgs, char **arguments)
     Grid &grid = *gridPtr;
 
     real dx = 1;
-    real dt = dx*dx / 3.0;
+    real dt = dx*dx / 6.0;
     real L = dx*N;
 
     auto systemPtr = make_shared<System>();
@@ -58,7 +58,7 @@ int main(int numArgs, char **arguments)
     real D = DSelf(poreSize);
     cout << "Theoretical flux = " << D * gradC << endl;
 
-    auto boundaryCondition = make_shared<FixedBoundaryValue>( FixedBoundaryValue(1, 0.9) );
+    auto boundaryCondition = make_shared<FixedBoundaryValue>( FixedBoundaryValue(1, 0.0) );
     grid.iterate([&](real &, short &poreSize, int i, int , int ) {
         if(i == 0 || i == grid.nx()-1) {
             poreSize = 19;
@@ -70,16 +70,16 @@ int main(int numArgs, char **arguments)
     integrator.addModifier(boundaryCondition);
     integrator.applyModifiers(grid);
     double startTime = omp_get_wtime();
-    int printEvery = 100;
-    int saveEvery = 100000;
+    int printEvery = 500;
+    int saveEvery = 500;
     int printCounter = 0;
     bool writeVTK = true;
     ofstream log("log.txt");
     grid.writeGeometryVTK("geometry.vtk");
     grid.writePoresVTK("pores.vtk");
     grid.writeConcentrationVTK("concentration.vtk");
-    return 0; // TODO: REMOVE
-    int timesteps = 1000000;
+    // return 0; // TODO: REMOVE
+    int timesteps = 100000;
     for(int i=0; i<timesteps; i++) {
         if(i % printEvery == 0) {
             integrator.computeFlux = true;
@@ -92,8 +92,8 @@ int main(int numArgs, char **arguments)
             double estimatedTotalTimeLeft = estimatedTotalTime - elapsedSecs;
             double ratio = (-system.fluxX0()/system.fluxX1());
 
-            cout << "Step " << i << " / " << timesteps << " (" << percentage << "\%). Fluxes: " << system.fluxX0() << " and " << system.fluxX1() << " (ratio " << ratio << "). Estimated time left: " << estimatedTotalTimeLeft << " seconds." << endl;
-            log << "Step " << i << " / " << timesteps << " (" << percentage << "\%). Fluxes: " << system.fluxX0() << " and " << system.fluxX1() << " (ratio " << ratio << "). Estimated time left: " << estimatedTotalTimeLeft << " seconds." << endl;
+            cout << "Step " << i << " / " << timesteps << " (" << percentage << "). Fluxes: " << system.fluxX0() << " and " << system.fluxX1() << " (ratio " << ratio << "). Estimated time left: " << estimatedTotalTimeLeft << " seconds." << endl;
+            log << "Step " << i << " / " << timesteps << " (" << percentage << "). Fluxes: " << system.fluxX0() << " and " << system.fluxX1() << " (ratio " << ratio << "). Estimated time left: " << estimatedTotalTimeLeft << " seconds." << endl;
 
             if(i > timesteps*0.1 && fabs(ratio - 1.0) < 1e-5) { // Initially we might have the correct flux, so don't let the program stop
                 cout << "Simulation has reached equilibrium with ratio = " << ratio << ". Stopping simulation." << endl;
@@ -107,7 +107,8 @@ int main(int numArgs, char **arguments)
 
         if(writeVTK && (i % saveEvery==0) ) {
             char filename[1000];
-            sprintf(filename, "concentration%d.vtk", printCounter);
+            cout << "Saving.." << endl;
+            sprintf(filename, "concentration%d.vtk", printCounter++);
             grid.writeConcentrationVTK(string(filename));
         }
     }
